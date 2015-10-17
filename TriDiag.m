@@ -1,15 +1,10 @@
 %===============================================================================
-% Creates sparse tri-diagonal matrix of the form
-% | a b 0 ... 0 |
-% | c a b ... 0 |
-% | 0 c a ... 0 |
-% | 0 ... c a b |
-% | 0 ... 0 c a |
+% Creates sparse tri-diagonal matrix of size n x n
 %===============================================================================
-function T = TriDiag(n, a, b, c)
+function T = TriDiag(n, Tmain, Tsub, Tsup)
   T = spalloc(n, n, 3 * n);
-  a_diag = sparse(1 : n, 1 : n, a * ones(1, n), n, n);
-  b_diag = sparse(1 : n - 1, 2 : n, b * ones(1, n - 1), n, n);
-  c_diag = sparse(2 : n, 1 : n - 1, c * ones(1, n - 1), n, n);
-  T = a_diag + b_diag + c_diag;
+  T_main = sparse(1 : n, 1 : n, Tmain * ones(1, n), n, n);
+  T_sub = sparse(2 : n, 1 : n - 1, Tsub * ones(1, n - 1), n, n);
+  T_sup = sparse(1 : n - 1, 2 : n, Tsup * ones(1, n - 1), n, n);
+  T = T_main + T_sub + T_sup;
 end
