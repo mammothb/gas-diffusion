@@ -10,10 +10,13 @@ function obj = Parameters()
   obj.lambda_t = 0.1;  % [1/s], Tissue scavenging (from last slide)
   obj.lambda_vw = 0.1;  % [1/s], Vascular wall scavenging (from last slide)
   obj.len_EC = 2.5;  % [um], Endothelial cell width
-  obj.len_T = 2500;  % [um], Tissue layer width
+  obj.len_T = 2490;  % [um], Tissue layer width
+  obj.len_VW = 10.0;  % [um], Vessel wall width (from paper)
   obj.mu_p = 1.2;  % [cP], Plasma viscosity
   obj.n = 1.3;  % [1], Hill coefficient
-  obj.R = obj.int_r + obj.len_EC + obj.len_T;
+  obj.R = obj.int_r + obj.len_EC + obj.len_T + obj.len_VW;
   obj.wss = 1.5;  % [Pa], Wall shear stress
   obj.wss_ref = 2.4;  % [Pa], Reference wall shear stress
 end
+% Two-dimensional transient model for prediction of arteriolar NO/O2 modulation
+% by spatiotemporal variations in cell-free layer width

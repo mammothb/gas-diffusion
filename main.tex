@@ -116,7 +116,7 @@
   \begin{bmatrix}
   -\frac{3h}{2} & 2h & -\frac{h}{2} & 0 & \cdots & \cdots & \cdots & \cdots & 
   0\\
-  0 & -2 & 1+a_2 & 0 & & & & & \vdots\\
+  1-a_2 & -2 & 1+a_2 & 0 & & & & & \vdots\\
   \vdots & 1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
   \vdots & 0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
   \vdots & & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
@@ -150,22 +150,25 @@
   \end{equation}
   
   EC $r_2<r<r_3$ is same method as CFL, only difference is in the \RNO term.
+  
+  VW $r_3<r<r_4$ is same method as CFL, only difference is in the $R_{O_2}$ 
+  term.
   \newpage
-  VW and T $r_3<r<r_5$. Combined since same governing equation.
+  T $r_4<r<r_5$. Combined since same governing equation.
     \begin{align*}
-    u_{VW}'(r_3)&=\gamma,\:\gamma=u_{EC}'(r_3),\\    
+    u_{T}'(r_4)&=\delta,\:\delta=u_{VW}'(r_4),\\    
     u'(r_5)&=0\rightarrow u_n=u_{n-1}
     \end{align*}
-  Using one-sided difference approximation again, $i$ is VW\&T, $j$ is EC.
+  Using one-sided difference approximation again, $i$ is T, $j$ is VW.
   \begin{align*}
-  \phi&=\frac{3u_j-4u_{j-1}+u_{j-2}}{2h},\\
-  \frac{-3u_i+4u_{i+1}-u_{i+2}}{2h}&=\phi
+  \delta&=\frac{3u_j-4u_{j-1}+u_{j-2}}{2h},\\
+  \frac{-3u_i+4u_{i+1}-u_{i+2}}{2h}&=\delta
   \end{align*}
   \begin{equation}
   A=
   \begin{bmatrix}
   -\frac{3h}{2} & 2h & -\frac{h}{2} & 0 & \cdots & \cdots & \cdots & 0\\
-  0 & -2 & 1+a_2 & 0 & & & & \vdots\\
+  1-a_2 & -2 & 1+a_2 & 0 & & & & \vdots\\
   \vdots & 1-a_3 & -2 & 1+a_3 & \ddots & & & \vdots\\
   \vdots & 0 & 1-a_4 & -2 & \ddots & \ddots & & \vdots\\
   \vdots & & \ddots & \ddots & \ddots & \ddots & & \vdots\\
@@ -185,7 +188,7 @@
   \end{bmatrix},\:
   B=
   \begin{bmatrix}
-  \gamma\\
+  \delta\\
   h^2F_2\\
   h^2F_3\\
   \vdots\\
