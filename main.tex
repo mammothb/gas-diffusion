@@ -1,0 +1,197 @@
+\documentclass[8pt, a4paper]{article}
+% packages and command files
+\input{include/packagescommands}
+% definitions
+\input{include/definitions}
+\begin{document}
+  Starting equations
+  \begin{equation}
+  \frac{\DNO}{r} \frac{d}{dr} \left (r \frac{d\CNO}{dr} \right) + \RNO = 0
+  \end{equation}
+  
+  Simplify
+  \begin{equation}
+  \DNO \frac{d^2\CNO}{dr^2} + \frac{\DNO}{r} \frac{d\CNO}{dr} = - \RNO
+  \end{equation}
+  
+  Compare to form
+  \begin{equation} \label{eq:form}
+  u''+P(r)u'=F(r)
+  \end{equation}
+  \begin{equation}
+  \:u=\CNO,\:P(r)=\frac{1}{r},\:F(r)=-\frac{\RNO}{\DNO}
+  \end{equation}
+  
+  Taylor expansion
+  \begin{align*}
+  u_{i+1}&=u_i+u_i'\dr+\frac{1}{2}u_i''\dr^2,\\
+  u_{i-1}&=u_i-u_i'\dr+\frac{1}{2}u_i''\dr^2
+  \end{align*}
+  
+  Central difference
+  \begin{align*}
+  u_i'&=\frac{u_{i+1}-u_{i-1}}{2\dr},\\
+  u_i''&=\frac{u_{i+1}-2u_i+u_{i-1}}{\dr^2}
+  \end{align*}
+  
+  Sub back into Eq. \eqref{eq:form}
+  \begin{equation}
+  \frac{u_{i+1}-2u_i+u_{i-1}}{h^2}+P_i\frac{u_{i+1}-u_{i-1}}{2h}=F_i,\:h=\dr
+  \end{equation}
+  
+  where index $i$ starts at 1. 
+  
+  Rearrange
+  \begin{equation}
+  \left (1-\frac{h}{2}P_i \right)u_{i-1}+(-2)u_i+\left (1+\frac{h}{2}P_i 
+  \right)u_{i+1}=h^2F_i
+  \end{equation}
+
+  Split into 4 sections since equations for vascular wall and tissue are the 
+  same. Solutions are in the general form $A\ubf=B$. Let $a_i=\frac{h}{2}P_i$.
+
+  RBC core $r_0 < r < r_1$
+  \begin{align*}
+  u'(0)&=0\rightarrow u_1 = u_2,\\
+  u_{RBC}'(r_1)&=\sigma,\:\sigma=u_{CFL}'(r_1)
+  \end{align*}
+  Using second-order accurate one-sided difference approximation, $j$ 
+  represents indexes in CFL domain.
+  \begin{align*}
+  \sigma&=\frac{-3u_j+4u_{j+1}-u_{j+2}}{2h},\\
+  \frac{3u_i-4u_{i-1}+u_{i-2}}{2h}&=\sigma
+  \end{align*}
+  
+  \setlength{\extrarowheight}{1.25\baselineskip}
+  \begin{equation}
+  A=
+  \begin{bmatrix}
+  -2-(1-a_2) & 1+a_2 & 0 & \cdots & \cdots & \cdots & \cdots & 0\\
+  1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
+  0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
+  \vdots & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
+  \vdots & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 & 0 \\
+  \vdots & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
+  \vdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
+  0 & \cdots & \cdots & \cdots & \cdots & \frac{h}{2} & -2h & 
+  \frac{3h}{2}\\[5ex]
+  \end{bmatrix},\:
+  \ubf=
+  \begin{bmatrix}
+  u_2\\
+  u_3\\
+  \vdots\\
+  u_i\\
+  \vdots\\
+  u_n
+  \end{bmatrix},\:
+  B=
+  \begin{bmatrix}
+  h^2F_2\\
+  h^2F_3\\
+  \vdots\\
+  h^2F_i\\
+  \vdots\\
+  h^2F_{n-1}\\
+  \sigma
+  \end{bmatrix}
+  \end{equation}
+
+  CFL $r_1<r<r_2$
+  \begin{align*}
+  u_{CFL}'(r_1)&=\sigma,\:\sigma=u_{RBC}'(r_1),\\
+  u_{CFL}'(r_2)&=\phi,\:\phi=u_{EC}'(r_2),\\
+  \end{align*}
+  
+  Using one-sided difference approximation again, $i$ is CFL, $j$ is RBC and 
+  $k$ is EC.
+  \begin{align*}
+  \sigma&=\frac{3u_j-4u_{j-1}+u_{j-2}}{2h},\\
+  \frac{-3u_i+4u_{i+1}-u_{i+2}}{2h}&=\sigma,\\
+  \phi&=\frac{-3u_k+4u_{k+1}-u_{k+2}}{2h},\\
+  \frac{3u_i-4u_{i-1}+u_{i-2}}{2h}&=\phi
+  \end{align*}
+  \begin{equation}
+  A=
+  \begin{bmatrix}
+  -\frac{3h}{2} & 2h & -\frac{h}{2} & 0 & \cdots & \cdots & \cdots & \cdots & 
+  0\\
+  0 & -2 & 1+a_2 & 0 & & & & & \vdots\\
+  \vdots & 1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
+  \vdots & 0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
+  \vdots & & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
+  \vdots & & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 & 0\\
+  \vdots & & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
+  \vdots & \cdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
+  0 & \cdots & \cdots & \cdots & \cdots & \cdots & \frac{h}{2} & -2h & 
+  \frac{3h}{2}\\[5ex]
+  \end{bmatrix},\:
+  \ubf=
+  \begin{bmatrix}
+  u_1\\
+  u_2\\
+  u_3\\
+  \vdots\\
+  u_i\\
+  \vdots\\
+  u_n
+  \end{bmatrix},\:
+  B=
+  \begin{bmatrix}
+  \sigma\\
+  h^2F_2\\
+  h^2F_3\\
+  \vdots\\
+  h^2F_i\\
+  \vdots\\
+  h^2F_{n-1}\\
+  \phi
+  \end{bmatrix}
+  \end{equation}
+  
+  EC $r_2<r<r_3$ is same method as CFL, only difference is in the \RNO term.
+  \newpage
+  VW and T $r_3<r<r_5$. Combined since same governing equation.
+    \begin{align*}
+    u_{VW}'(r_3)&=\gamma,\:\gamma=u_{EC}'(r_3),\\    
+    u'(r_5)&=0\rightarrow u_n=u_{n-1}
+    \end{align*}
+  Using one-sided difference approximation again, $i$ is VW\&T, $j$ is EC.
+  \begin{align*}
+  \phi&=\frac{3u_j-4u_{j-1}+u_{j-2}}{2h},\\
+  \frac{-3u_i+4u_{i+1}-u_{i+2}}{2h}&=\phi
+  \end{align*}
+  \begin{equation}
+  A=
+  \begin{bmatrix}
+  -\frac{3h}{2} & 2h & -\frac{h}{2} & 0 & \cdots & \cdots & \cdots & 0\\
+  0 & -2 & 1+a_2 & 0 & & & & \vdots\\
+  \vdots & 1-a_3 & -2 & 1+a_3 & \ddots & & & \vdots\\
+  \vdots & 0 & 1-a_4 & -2 & \ddots & \ddots & & \vdots\\
+  \vdots & & \ddots & \ddots & \ddots & \ddots & & \vdots\\
+  \vdots & & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 \\
+  \vdots & & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} \\
+  0 & \cdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2+(1+a_{n-1}) \\[5ex]
+  \end{bmatrix},\:
+  \ubf=
+  \begin{bmatrix}
+  u_1\\
+  u_2\\
+  u_3\\
+  \vdots\\
+  u_i\\
+  \vdots\\
+  u_{n-1}
+  \end{bmatrix},\:
+  B=
+  \begin{bmatrix}
+  \gamma\\
+  h^2F_2\\
+  h^2F_3\\
+  \vdots\\
+  h^2F_i\\
+  \vdots\\
+  h^2F_{n-1}
+  \end{bmatrix}
+  \end{equation}
+\end{document}
