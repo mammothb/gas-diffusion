@@ -13,7 +13,7 @@ function obj = Gas(which_gas, param)
     obj.d_coeff = 2800.0;  % [um^2/s], Diffusion coefficient for O2
     obj.Q_max_vw = 5.0;  % [uM/s], Max O2 consumption rate at vascular wall
     obj.Q_max_t = 50.0;  % [uM/s], Max O2 consumption rate at tissue
-    obj.K_m_eNOS = 4.7;  % [Torr]
+    obj.Km_eNOS = 4.7;  % [Torr]
     obj.P = 70.0;  % [Torr], P_O2 in blood lumen
   end
 end
