@@ -4,12 +4,12 @@ clf;
 para = Parameters();  % general parameters
 gas_no = Gas('NO', para);  % create object for NO gas
 gas_o2 = Gas('O2', para);  % create object for O2 gas
-cfl = 2;  % [um], CFL width
+cfl = 4;  % [um], CFL width
 lambda_core = para.lambda_b / 2 * (1 + para.int_r * para.int_r /...
     (para.int_r - cfl) / (para.int_r - cfl));
 
 %% Simulation parameters
-h = 0.5;  % [um], space step
+h = 0.1;  % [um], space step
 if mod(para.R, h) > 1e-20
   error('Domain and space step incompatible');
 end
@@ -47,29 +47,41 @@ fprintf('r0: %.1f\nr1: %.1f\nr2: %.1f\nr3: %.1f\nr4: %.1f\nr5: %.1f\n',...
 %% Setting up all LHS matrix since they remain the same during the iterations
 % RBC r0 < r < r1
 a_01 = h / 2 ./ r(2 : ind_r1 - 1);
-diags_01 = [[1 - a_01(2 : end)'; -4; 0], [-2 * ones(nr_i_01 - 1, 1); 3],...
+% one-sided
+% diags_01 = [[1 - a_01(2 : end)'; -4; 0], [-2 * ones(nr_i_01 - 1, 1); 3],...
+%     [0; 1 + a_01(1 : end)']];
+% imaginary node + correction
+diags_01 = [[1 - a_01(2 : end)'; 1; 0], [-2 * ones(nr_i_01 - 1, 1); -1],...
     [0; 1 + a_01(1 : end)']];
 A_01 = spdiags(diags_01, [-1; 0; 1], nr_i_01, nr_i_01);
-A_01(end, end - 2) = 1;  % extra term for one-sided approximation of u'
+% A_01(end, end - 2) = 1;  % extra term for one-sided approximation of u'
 % CFL r1 < r < r2
 a_12 = h / 2 ./ r(ind_r1 + 1 : ind_r2 - 1);
-diags_12 = [[1 - a_12(2 : end)'; -4; 0], [-2 * ones(nr_i_12 - 1, 1); 3],...
+% one-sided
+% diags_12 = [[1 - a_12(2 : end)'; -4; 0], [-2 * ones(nr_i_12 - 1, 1); 3],...
+%     [0; 1 + a_12(1 : end)']];
+diags_12 = [[1 - a_12(2 : end)'; 1; 0], [-2 * ones(nr_i_12 - 1, 1); -1],...
     [0; 1 + a_12(1 : end)']];
 A_12 = spdiags(diags_12, [-1; 0; 1], nr_i_12, nr_i_12);
-A_12(end, end - 2) = 1;  % extra term for one-sided approximation of u'
+% A_12(end, end - 2) = 1;  % extra term for one-sided approximation of u'
 % EC r2 < r < r3
 a_23 = h / 2 ./ r(ind_r2 + 1 : ind_r3 - 1);
-diags_23 = [[1 - a_23(2 : end)'; -4; 0], [-2 * ones(nr_i_23 - 1, 1); 3],...
+% one-sided
+% diags_23 = [[1 - a_23(2 : end)'; -4; 0], [-2 * ones(nr_i_23 - 1, 1); 3],...
+%     [0; 1 + a_23(1 : end)']];
+diags_23 = [[1 - a_23(2 : end)'; 1; 0], [-2 * ones(nr_i_23 - 1, 1); -1],...
     [0; 1 + a_23(1 : end)']];
 A_23 = spdiags(diags_23, [-1; 0; 1], nr_i_23, nr_i_23);
-A_23(end, end - 2) = 1;  % extra term for one-sided approximation of u'
-Af = full(A_23);
+% A_23(end, end - 2) = 1;  % extra term for one-sided approximation of u'
 % VW r3 < r < r4
 a_34 = h / 2 ./ r(ind_r3 + 1 : ind_r4 - 1);
-diags_34 = [[1 - a_34(2 : end)'; -4; 0], [-2 * ones(nr_i_34 - 1, 1); 3],...
+% one-sided
+% diags_34 = [[1 - a_34(2 : end)'; -4; 0], [-2 * ones(nr_i_34 - 1, 1); 3],...
+%     [0; 1 + a_34(1 : end)']];
+diags_34 = [[1 - a_34(2 : end)'; 1; 0], [-2 * ones(nr_i_34 - 1, 1); -1],...
     [0; 1 + a_34(1 : end)']];
 A_34 = spdiags(diags_34, [-1; 0; 1], nr_i_34, nr_i_34);
-A_34(end, end - 2) = 1;  % extra term for one-sided approximation of u'
+% A_34(end, end - 2) = 1;  % extra term for one-sided approximation of u'
 % T r4 < r < r5
 a_45 = h / 2 ./ r(ind_r4 + 1 : end - 1);
 diags_45 = [[1 - a_45(2 : end)'; 0], [-2 * ones(nr_i_45, 1)], [0;...
@@ -78,25 +90,38 @@ A_45 = spdiags(diags_45, [-1; 0; 1], nr_i_45, nr_i_45);
 
 %% Solving O2 to get initial partial pressure profile
 % Neumann BC for continous mass flux using one-sided approx
-phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
+% phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
+phi_v_12 = CentralApprox(h, v(ind_r2 + 1), v(ind_r2 - 1));
 % RHS
-C_12 = [-(1 - a_12(1)) * v(ind_r1); zeros(nr_i_12 - 2, 1); 2 * h * phi_v_12];
+% C_12 = [-(1 - a_12(1)) * v(ind_r1); zeros(nr_i_12 - 2, 1); 2 * h * phi_v_12];
+C_12 = [-(1 - a_12(1)) * v(ind_r1); zeros(nr_i_12 - 2, 1); -h * phi_v_12];
 v(ind_r1 + 1 : ind_r2) = A_12 \ C_12;  % Solving
 % Neumann BC for continuous mass flux using one-sided approx
-gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
+% gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
+gamma_v_23 = CentralApprox(h, v(ind_r3 + 1), v(ind_r3 - 1));
 % RHS
-R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3 - 1) ./...
-    (v(ind_r2 + 1 : ind_r3 - 1) + gas_o2.Km_eNOS);
-C_23 = [-R_NO_23 ./ gas_o2.d_coeff ./ para.alpha; 2 * h * gamma_v_23];
+% R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3 - 1) ./...
+%     (v(ind_r2 + 1 : ind_r3 - 1) + gas_o2.Km_eNOS);
+% C_23 = [-R_NO_23 ./ gas_o2.d_coeff ./ para.alpha; 2 * h * gamma_v_23];
+R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3) ./...
+    (v(ind_r2 + 1 : ind_r3) + gas_o2.Km_eNOS);
+C_23 = [-R_NO_23 ./ gas_o2.d_coeff ./ para.alpha];
+C_23(end) = C_23(end) / 2 - h * gamma_v_23;
 C_23(1) = C_23(1) - (1 - a_23(1)) * v(ind_r2);
 v(ind_r2 + 1 : ind_r3) = A_23 \ C_23;  % Solving
 % Neumann BC for continous mass flux using one-sided approx
-delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
+% delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
+delta_v_34 = CentralApprox(h, v(ind_r4 + 1), v(ind_r4 - 1));
 % RHS
-app_Km_34 = para.Km * (1 + u(ind_r3 + 1 : ind_r4 - 1) ./ gas_no.C_ref);
-R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4 - 1) ./...
-    (v(ind_r3 + 1 : ind_r4 - 1) + app_Km_34);
-C_34 = [h * h / gas_o2.d_coeff / para.alpha .* R_O2_34; 2 * h * delta_v_34];
+% app_Km_34 = para.Km * (1 + u(ind_r3 + 1 : ind_r4 - 1) ./ gas_no.C_ref);
+% R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4 - 1) ./...
+%     (v(ind_r3 + 1 : ind_r4 - 1) + app_Km_34);
+app_Km_34 = para.Km * (1 + u(ind_r3 + 1 : ind_r4) ./ gas_no.C_ref);
+R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4) ./...
+    (v(ind_r3 + 1 : ind_r4) + app_Km_34);
+% C_34 = [h * h / gas_o2.d_coeff / para.alpha .* R_O2_34; 2 * h * delta_v_34];
+C_34 = [h * h / gas_o2.d_coeff / para.alpha .* R_O2_34];
+C_34(end) = C_34(end) / 2 - h * delta_v_34;
 C_34(1) = C_34(1) - (1 - a_34(1)) * v(ind_r3);
 v(ind_r3 + 1 : ind_r4) = A_34 \ C_34;  % Solving
 v(end) = v(end - 1);  % Neumann BC for zero mass flux
@@ -109,7 +134,7 @@ C_45(1) = C_45(1) - (1 - a_45(1)) * v(ind_r4);
 C_45(end) = C_45(end) - (1 + a_45(end)) * v(end);
 v(ind_r4 + 1 : end - 1) = A_45 \ C_45;  % Solving
 
-for ii = 1 : 4
+for ii = 1 : 2
   u_old = u;  % copy previous solution to check for steady state
   v_old = v;
   %=============================================================================
@@ -119,10 +144,17 @@ for ii = 1 : 4
   % Neumann BC for zero mass flux
   u(1) = u(2);
   % Neumann BC for continuous mass flux using one-sided approx
-  sigma_u_01 = ForwardOneSideApprox(h, u(ind_r1), u(ind_r1 + 1), u(ind_r1 + 2));
+  % sigma_u_01 = ForwardOneSideApprox(h, u(ind_r1), u(ind_r1 + 1), u(ind_r1 + 2));
+  % imaginary node
+  sigma_u_01 = (u(ind_r1 + 1) - u(ind_r1 - 1)) / 2 / h;
   % RHS
-  R_NO_01 = lambda_core .* u(2 : ind_r1 - 1);
-  B_01 = [h * h / gas_no.d_coeff .* R_NO_01; 2 * h * sigma_u_01];
+  % ond-sided
+  % R_NO_01 = lambda_core .* u(2 : ind_r1 - 1);
+  % B_01 = [h * h / gas_no.d_coeff .* R_NO_01; 2 * h * sigma_u_01];
+  % imaginary node
+  R_NO_01 = lambda_core .* u(2 : ind_r1);
+  B_01 = [h * h / gas_no.d_coeff .* R_NO_01];
+  B_01(end) = B_01(end) - h * sigma_u_01;
   B_01(1) = B_01(1) - (1 - a_01(1)) * u(1);
   u(2:ind_r1) = A_01 \ B_01;  % Solving
   % O2
@@ -133,17 +165,21 @@ for ii = 1 : 4
   %=============================================================================
   % NO
   % Neumann BC for continuous mass flux using one-sided approx
-  phi_u_12 = ForwardOneSideApprox(h, u(ind_r2), u(ind_r2 + 1), u(ind_r2 + 2));
+  % phi_u_12 = ForwardOneSideApprox(h, u(ind_r2), u(ind_r2 + 1), u(ind_r2 + 2));
+  phi_u_12 = (u(ind_r2 + 1) - u(ind_r2 - 1)) / 2 / h;
   % RHS
-  B_12 = [-(1 - a_12(1)) * u(ind_r1); zeros(nr_i_12 - 2, 1); 2 * h *...
-      phi_u_12];
+  % B_12 = [-(1 - a_12(1)) * u(ind_r1); zeros(nr_i_12 - 2, 1); 2 * h *...
+  %     phi_u_12];
+  B_12 = [-(1 - a_12(1)) * u(ind_r1); zeros(nr_i_12 - 2, 1); -h * phi_u_12];
   u(ind_r1 + 1 : ind_r2) = A_12 \ B_12;  % Solving
   % O2
   % Neumann BC for continous mass flux using one-sided approx
-  phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
+  % phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
+  phi_v_12 = (v(ind_r2 + 1) - v(ind_r2 - 1)) / 2 / h;
   % RHS
-  C_12 = [-(1 - a_12(1)) * v(ind_r1); zeros(nr_i_12 - 2, 1); 2 * h *...
-      phi_v_12];
+  % C_12 = [-(1 - a_12(1)) * v(ind_r1); zeros(nr_i_12 - 2, 1); 2 * h *...
+  %     phi_v_12];
+  C_12 = [-(1 - a_12(1)) * v(ind_r1); zeros(nr_i_12 - 2, 1); -h * phi_v_12];
   v(ind_r1 + 1 : ind_r2) = A_12 \ C_12;  % Solving
 
   %=============================================================================
@@ -151,19 +187,27 @@ for ii = 1 : 4
   %=============================================================================
   % NO
   % Neumann BC for continuous mass flux using one-sided approx
-  gamma_u_23 = ForwardOneSideApprox(h, u(ind_r3), u(ind_r3 + 1), u(ind_r3 + 2));
+  % gamma_u_23 = ForwardOneSideApprox(h, u(ind_r3), u(ind_r3 + 1), u(ind_r3 + 2));
+  gamma_u_23 = CentralApprox(h, u(ind_r3 + 1), u(ind_r3 - 1));
   % NO production term
-  R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3 - 1) ./...
-      (v(ind_r2 + 1 : ind_r3 - 1) + gas_o2.Km_eNOS);
+  % R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3 - 1) ./...
+  %     (v(ind_r2 + 1 : ind_r3 - 1) + gas_o2.Km_eNOS);
+  R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3) ./...
+      (v(ind_r2 + 1 : ind_r3) + gas_o2.Km_eNOS);
   % RHS
-  B_23 = [h * h / gas_no.d_coeff .* R_NO_23; 2 * h * gamma_u_23];
+  % B_23 = [h * h / gas_no.d_coeff .* R_NO_23; 2 * h * gamma_u_23];
+  B_23 = [h * h / gas_no.d_coeff .* R_NO_23];
+  B_23(end) = B_23(end) / 2 - h * gamma_u_23;
   B_23(1) = B_23(1) - (1 - a_23(1)) * u(ind_r2);
   u(ind_r2 + 1 : ind_r3) = A_23 \ B_23;  % Solving
   % O2
   % Neumann BC for continuous mass flux using one-sided approx
-  gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
+  % gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
+  gamma_v_23 = CentralApprox(h, v(ind_r3 + 1), v(ind_r3 - 1));
   % RHS
-  C_23 = [-R_NO_23 ./ gas_o2.d_coeff ./ para.alpha; 2 * h * gamma_v_23];
+  % C_23 = [-R_NO_23 ./ gas_o2.d_coeff ./ para.alpha; 2 * h * gamma_v_23];
+  C_23 = [-R_NO_23 ./ gas_o2.d_coeff ./ para.alpha];
+  C_23(end) = C_23(end) / 2 - h * gamma_v_23;
   C_23(1) = C_23(1) - (1 - a_23(1)) * v(ind_r2);
   % Solving
   v(ind_r2 + 1 : ind_r3) = A_23 \ C_23;
@@ -173,20 +217,30 @@ for ii = 1 : 4
   %=============================================================================
   % NO
   % Neumann BC for continous mass flux using one-sided approx
-  delta_u_34 = ForwardOneSideApprox(h, u(ind_r4), u(ind_r4 + 1), u(ind_r4 + 2));
-  R_NO_34 = para.lambda_vw .* u(ind_r3 + 1 : ind_r4 - 1);
+  % delta_u_34 = ForwardOneSideApprox(h, u(ind_r4), u(ind_r4 + 1), u(ind_r4 + 2));
+  delta_u_34 = CentralApprox(h, u(ind_r4 + 1), u(ind_r4 - 1));
+  % R_NO_34 = para.lambda_vw .* u(ind_r3 + 1 : ind_r4 - 1);
+  R_NO_34 = para.lambda_vw .* u(ind_r3 + 1 : ind_r4);
   % RHS
-  B_34 = [h * h / gas_no.d_coeff .* R_NO_34; 2 * h * delta_u_34];
+  % B_34 = [h * h / gas_no.d_coeff .* R_NO_34; 2 * h * delta_u_34];
+  B_34 = [h * h / gas_no.d_coeff .* R_NO_34];
+  B_34(end) = B_34(end) / 2 - h * delta_u_34;
   B_34(1) = B_34(1) - (1 - a_34(1)) * u(ind_r3);
   u(ind_r3 + 1 : ind_r4) = A_34 \ B_34;  % Solving
   % O2
   % Neumann BC for continous mass flux using one-sided approx
-  delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
-  app_Km = para.Km * (1 + u(ind_r3 + 1 : ind_r4 - 1) ./ gas_no.C_ref);
-  R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4 - 1) ./...
-      (v(ind_r3 + 1 : ind_r4 - 1) + app_Km);
+  % delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
+  delta_v_34 = CentralApprox(h, v(ind_r4 + 1), v(ind_r4 - 1));
+  % app_Km = para.Km * (1 + u(ind_r3 + 1 : ind_r4 - 1) ./ gas_no.C_ref);
+  % R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4 - 1) ./...
+  %     (v(ind_r3 + 1 : ind_r4 - 1) + app_Km);
+  app_Km = para.Km * (1 + u(ind_r3 + 1 : ind_r4) ./ gas_no.C_ref);
+  R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4) ./...
+      (v(ind_r3 + 1 : ind_r4) + app_Km);
   % RHS
-  C_34 = [h * h / gas_o2.d_coeff / para.alpha .* R_O2_34; 2 * h * delta_v_34];
+  % C_34 = [h * h / gas_o2.d_coeff / para.alpha .* R_O2_34; 2 * h * delta_v_34];
+  C_34 = [h * h / gas_o2.d_coeff / para.alpha .* R_O2_34];
+  C_34(end) = C_34(end) / 2 - h * delta_v_34;
   C_34(1) = C_34(1) - (1 - a_34(1)) * v(ind_r3);
   v(ind_r3 + 1 : ind_r4) = A_34 \ C_34;  % Solving
 
@@ -213,7 +267,12 @@ for ii = 1 : 4
   C_45(1) = C_45(1) - (1 - a_45(1)) * v(ind_r4);
   C_45(end) = C_45(end) - (1 + a_45(end)) * v(end);
   v(ind_r4 + 1 : end - 1) = A_45 \ C_45;  % Solving
+
+  %=============================================================================
+  % Steady state check here
+  %=============================================================================
 end
+
 subplot(2, 1, 1);
 plot(r(1 : ind_r1), u(1 : ind_r1),...
     r(ind_r1 + 1 : ind_r2), u(ind_r1 + 1 : ind_r2),...
