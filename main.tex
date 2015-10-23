@@ -47,10 +47,21 @@
   \right)u_{i+1}=h^2F_i
   \end{equation}
 
-  Split into 4 sections since equations for vascular wall and tissue are the 
-  same. Solutions are in the general form $A\ubf=B$. Let $a_i=\frac{h}{2}P_i$.
+  Split into 5 sections. Solutions are in the general form $A\ubf=B$.
+  
+  Let  $a_i=\frac{h}{2}P_i$.
 
   RBC core $r_0 < r < r_1$
+  
+  Governing equation:
+  \begin{equation*}
+  \frac{\DNO}{r}\frac{d}{dr}\left(r\frac{d\CNO}{dr}\right)-\lambda_{core}\CNO=0
+  \end{equation*}
+  \begin{equation*}
+  F_i = \frac{\lambda_{core}u_i}{\DNO}
+  \end{equation*}
+  
+  Boundary condition:
   \begin{align*}
   u'(0)&=0\rightarrow u_1 = u_2,\\
   u_{RBC}'(r_1)&=\sigma,\:\sigma=u_{CFL}'(r_1)
@@ -59,22 +70,22 @@
   represents indexes in CFL domain.
   \begin{align*}
   \sigma&=\frac{-3u_j+4u_{j+1}-u_{j+2}}{2h},\\
-  \frac{3u_i-4u_{i-1}+u_{i-2}}{2h}&=\sigma
+  \frac{3u_i-4u_{i-1}+u_{i-2}}{2h}&=\sigma,\\
+  3u_i-4u_{i-1}+u_{i-2}&=2h\sigma
   \end{align*}
   
   \setlength{\extrarowheight}{1.25\baselineskip}
   \begin{equation}
   A=
   \begin{bmatrix}
-  -2-(1-a_2) & 1+a_2 & 0 & \cdots & \cdots & \cdots & \cdots & 0\\
+  -2 & 1+a_2 & 0 & \cdots & \cdots & \cdots & \cdots & 0\\
   1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
   0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
   \vdots & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
   \vdots & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 & 0 \\
   \vdots & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
   \vdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
-  0 & \cdots & \cdots & \cdots & \cdots & \frac{h}{2} & -2h & 
-  \frac{3h}{2}\\[5ex]
+  0 & \cdots & \cdots & \cdots & \cdots & 1 & -4 & 3\\[5ex]
   \end{bmatrix},\:
   \ubf=
   \begin{bmatrix}
@@ -87,48 +98,52 @@
   \end{bmatrix},\:
   B=
   \begin{bmatrix}
-  h^2F_2\\
+  h^2F_2-(1-a_2)u_1\\
   h^2F_3\\
   \vdots\\
   h^2F_i\\
   \vdots\\
   h^2F_{n-1}\\
-  \sigma
+  2h\sigma
   \end{bmatrix}
   \end{equation}
 
   CFL $r_1<r<r_2$
+  
+  Governing equation
+  \begin{equation*}
+  \frac{\DNO}{r}\frac{d}{dr}\left(r\frac{d\CNO}{dr}\right)=0
+  \end{equation*}
+  \begin{equation*}
+  F_i=\frac{0}{\DNO}
+  \end{equation*}
+  
+  Boundary condition:
   \begin{align*}
-  u_{CFL}'(r_1)&=\sigma,\:\sigma=u_{RBC}'(r_1),\\
+  u_{CFL}(r_1)&=u_{RBC}(r_1),\\
   u_{CFL}'(r_2)&=\phi,\:\phi=u_{EC}'(r_2),\\
   \end{align*}
   
-  Using one-sided difference approximation again, $i$ is CFL, $j$ is RBC and 
-  $k$ is EC.
+  Using one-sided difference approximation again, $i$ is CFL, $j$ is RBC.
   \begin{align*}
-  \sigma&=\frac{3u_j-4u_{j-1}+u_{j-2}}{2h},\\
-  \frac{-3u_i+4u_{i+1}-u_{i+2}}{2h}&=\sigma,\\
   \phi&=\frac{-3u_k+4u_{k+1}-u_{k+2}}{2h},\\
-  \frac{3u_i-4u_{i-1}+u_{i-2}}{2h}&=\phi
+  \frac{3u_i-4u_{i-1}+u_{i-2}}{2h}&=\phi,\\
+  3u_i-4u_{i-1}+u_{i-2}&=2h\phi
   \end{align*}
   \begin{equation}
   A=
   \begin{bmatrix}
-  -\frac{3h}{2} & 2h & -\frac{h}{2} & 0 & \cdots & \cdots & \cdots & \cdots & 
-  0\\
-  1-a_2 & -2 & 1+a_2 & 0 & & & & & \vdots\\
-  \vdots & 1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
-  \vdots & 0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
-  \vdots & & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
-  \vdots & & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 & 0\\
-  \vdots & & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
-  \vdots & \cdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
-  0 & \cdots & \cdots & \cdots & \cdots & \cdots & \frac{h}{2} & -2h & 
-  \frac{3h}{2}\\[5ex]
+  -2 & 1+a_2 & 0 & & & & & 0\\
+  1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
+  0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
+  \vdots & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
+  \vdots & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 & 0\\
+  \vdots & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
+  \vdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
+  0 & \cdots & \cdots & \cdots & \cdots & 1 & -4 & 3\\[5ex]
   \end{bmatrix},\:
   \ubf=
   \begin{bmatrix}
-  u_1\\
   u_2\\
   u_3\\
   \vdots\\
@@ -138,47 +153,74 @@
   \end{bmatrix},\:
   B=
   \begin{bmatrix}
-  \sigma\\
-  h^2F_2\\
+  h^2F_2-(1-a_2)u_1\\
   h^2F_3\\
   \vdots\\
   h^2F_i\\
   \vdots\\
   h^2F_{n-1}\\
-  \phi
+  2h\phi
   \end{bmatrix}
   \end{equation}
   
   EC $r_2<r<r_3$ is same method as CFL, only difference is in the \RNO term.
   
+  Governing equation
+  \begin{equation*}
+  \frac{\DNO}{r}\frac{d}{dr}\left(r\frac{d\CNO}{dr}\right)+\RNO=0
+  \end{equation*}
+  \begin{equation*}
+  F_i=-\frac{R_{NO_{max}}}{\DNO}\frac{P_{O_2}}{P_{O_2}+K_{m,eNOS}}
+  \end{equation*}
+  
+  Boundary condition:
+  \begin{align*}
+  u_{EC}(r_2)&=u_{CFL}(r_2),\\
+  u_{EC}'(r_3)&=\gamma,\:\gamma=u_{VW}'(r_3)
+  \end{align*}
+  
   VW $r_3<r<r_4$ is same method as CFL, only difference is in the $R_{O_2}$ 
   term.
-  \newpage
-  T $r_4<r<r_5$. Combined since same governing equation.
-    \begin{align*}
-    u_{T}'(r_4)&=\delta,\:\delta=u_{VW}'(r_4),\\    
-    u'(r_5)&=0\rightarrow u_n=u_{n-1}
-    \end{align*}
-  Using one-sided difference approximation again, $i$ is T, $j$ is VW.
+  
+  Governing equation
+  \begin{equation*}
+  \frac{\DNO}{r}\frac{d}{dr}\left(r\frac{d\CNO}{dr}\right)-\lambda_{vw,t}\CNO=0
+  \end{equation*}
+  \begin{equation*}
+  F_i=\frac{\lambda_{vw,t}u_i}{\DNO}
+  \end{equation*}
+  
+  Boundary condition:
   \begin{align*}
-  \delta&=\frac{3u_j-4u_{j-1}+u_{j-2}}{2h},\\
-  \frac{-3u_i+4u_{i+1}-u_{i+2}}{2h}&=\delta
+  u_{VW}(r_3)&=u_{EC}(r_3),\\
+  u_{VW}'(r_4)&=\delta,\:\delta=u_{T}'(r_4)
+  \end{align*}
+
+  T $r_4<r<r_5$. Combined since same governing equation.
+  Governing equation
+  \begin{equation*}
+  \frac{\DNO}{r}\frac{d}{dr}\left(r\frac{d\CNO}{dr}\right)-\lambda_{vw,t}\CNO=0
+  \end{equation*}
+  \begin{equation*}
+  F_i=\frac{\lambda_{vw,t}u_i}{\DNO}
+  \end{equation*}
+  \begin{align*}
+  u_{T}(r_4)&=u_{VW}(r_4),\\    
+  u'(r_5)&=0\rightarrow u_n=u_{n-1}
   \end{align*}
   \begin{equation}
   A=
   \begin{bmatrix}
-  -\frac{3h}{2} & 2h & -\frac{h}{2} & 0 & \cdots & \cdots & \cdots & 0\\
-  1-a_2 & -2 & 1+a_2 & 0 & & & & \vdots\\
-  \vdots & 1-a_3 & -2 & 1+a_3 & \ddots & & & \vdots\\
-  \vdots & 0 & 1-a_4 & -2 & \ddots & \ddots & & \vdots\\
-  \vdots & & \ddots & \ddots & \ddots & \ddots & & \vdots\\
-  \vdots & & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 \\
-  \vdots & & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} \\
-  0 & \cdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2+(1+a_{n-1}) \\[5ex]
+  -2 & 1+a_2 & 0 & \cdots & \cdots & \cdots & \vdots \\
+  1-a_3 & -2 & 1+a_3 & \ddots & & & \vdots \\
+  0 & 1-a_4 & -2 & \ddots & \ddots & & \vdots \\
+  \vdots & \ddots & \ddots & \ddots & \ddots & & \vdots \\
+  \vdots & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 \\
+  \vdots & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} \\
+  0 & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 \\[5ex]
   \end{bmatrix},\:
   \ubf=
   \begin{bmatrix}
-  u_1\\
   u_2\\
   u_3\\
   \vdots\\
@@ -188,13 +230,94 @@
   \end{bmatrix},\:
   B=
   \begin{bmatrix}
-  \delta\\
-  h^2F_2\\
+  h^2F_2-(1-a_2)u_1\\
   h^2F_3\\
   \vdots\\
   h^2F_i\\
   \vdots\\
-  h^2F_{n-1}
+  h^2F_{n-1}-(1+a_{n-1})u_n
   \end{bmatrix}
   \end{equation}
+  
+  $O_2$ is solved using the same matrix as $NO$ except in RBC where it has a 
+  constant partial pressure.
+  
+  RBC core $r_0 < r < r_1$
+  \begin{equation*}
+  P_{O_2}=70
+  \end{equation*}
+  
+  CFL $r_1<r<r_2$
+  
+  Governing equation
+  \begin{equation*}
+  \alpha\frac{D_{O_2}}{r}\frac{d}{dr}\left(r\frac{dP_{O_2}}{dr}\right)=0
+  \end{equation*}
+  \begin{equation*}
+  F_i=\frac{0}{\alpha D_{O_2}}
+  \end{equation*}
+  
+  Boundary condition:
+  \begin{align*}
+  v_{CFL}(r_1)&=v_{RBC}(r_1),\\
+  v_{CFL}'(r_2)&=\phi,\:\phi=v_{EC}'(r_2)
+  \end{align*}
+  
+  EC $r_2<r<r_3$
+
+  Governing equation
+  \begin{equation*}
+  \alpha\frac{D_{O_2}}{r}\frac{d}{dr}\left(r\frac{dP_{O_2}}{dr}\right)-\RNO=0
+  \end{equation*}
+  \begin{equation*}
+  F_i=\frac{R_{NO_{max}}}{\alpha D_{O_2}}\frac{P_{O_2}}{P_{O_2}+K_{m,eNOS}}
+  \end{equation*}
+  
+  Boundary condition:
+  \begin{align*}
+  v_{EC}(r_2)&=v_{CFL}(r_2),\\
+  v_{EC}'(r_3)&=\gamma,\:\gamma=v_{VW}'(r_3)
+  \end{align*}
+  
+  VW $r_3<r<r_4$
+  
+  Governing equation
+  \begin{equation*}
+  \alpha\frac{D_{O_2}}{r}\frac{d}{dr}\left(r\frac{dP_{O_2}}{dr}\right)-Q_{O_2\:
+  max\:VW}\frac{P_{O_2}}{P_{O_2}+appK_m}=0
+  \end{equation*}
+  \begin{equation}
+  appK_m=K_m\left(1+\frac{\CNO}{C_{ref}}\right)
+  \end{equation}
+  \begin{equation*}
+  F_i=\frac{Q_{O_2\:max\:VW}}{\alpha 
+  D_{O_2}}\frac{P_{O_2}}{P_{O_2}+K_m\left(1+\frac{u_i}{C_{ref}}\right)}
+  \end{equation*}
+  
+  Boundary condition:
+  \begin{align*}
+  v_{VW}(r_3)&=v_{EC}(r_3),\\
+  v_{VW}'(r_4)&=\delta,\:\delta=v_{T}'(r_4)
+  \end{align*}
+  
+  T $r_4<r<r_5$
+  
+  Governing equation
+  \begin{equation*}
+  \alpha\frac{D_{O_2}}{r}\frac{d}{dr}\left(r\frac{dP_{O_2}}{dr}\right)-Q_{O_2\:
+    max\:T}\frac{P_{O_2}}{P_{O_2}+appK_m}=0
+  \end{equation*}
+  \begin{equation}
+  appK_m=K_m\left(1+\frac{\CNO}{C_{ref}}\right)
+  \end{equation}
+  \begin{equation*}
+  F_i=\frac{Q_{O_2\:max\:T}}{\alpha 
+    D_{O_2}}\frac{P_{O_2}}{P_{O_2}+K_m\left(1+\frac{u_i}{C_{ref}}\right)}
+  \end{equation*}
+  
+  Boundary condition:
+  \begin{align*}
+  v_{T}(r_4)&=v_{VW}(r_4),\\
+  v_{T}'(r_5)&=0\rightarrow v_n=v_{n-1}
+  \end{align*}
 \end{document}
