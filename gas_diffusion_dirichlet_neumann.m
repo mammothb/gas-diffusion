@@ -44,7 +44,7 @@ fprintf('r0: %.1f\nr1: %.1f\nr2: %.1f\nr3: %.1f\nr4: %.1f\nr5: %.1f\n',...
 %===============================================================================
 % All R_species terms have been treated as if they are shifted to the RHS
 %===============================================================================
-% set up coefficient for R terms for clarity
+% Set up coefficient for R terms for clarity
 r_coeff_no = h * h / gas_no.d_coeff;
 r_coeff_o2 = h * h / gas_o2.d_coeff / para.alpha;
 
@@ -69,15 +69,15 @@ A_45 = spdiags(diags_45, [-1; 0; 1], nr_i_45, nr_i_45);
 
 %% Solving O2 to get initial partial pressure profile
 % Neumann BC for continous mass flux using one-sided approx
-% phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
-phi_v_12 = CentralApprox(h, v(ind_r2 + 1), v(ind_r2 - 1));
+phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
+% phi_v_12 = CentralApprox(h, v(ind_r2 + 1), v(ind_r2 - 1));
 % RHS
 rhs_O2_12 = zeros(nr_i_12, 1);
 C_12 = MakeDirichletNeumannRHS(v(ind_r1), phi_v_12, a_12(1), h, rhs_O2_12);
 v(ind_r1 + 1 : ind_r2) = A_12 \ C_12;  % Solving
 % Neumann BC for continuous mass flux using one-sided approx
-% gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
-gamma_v_23 = CentralApprox(h, v(ind_r3 + 1), v(ind_r3 - 1));
+gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
+% gamma_v_23 = CentralApprox(h, v(ind_r3 + 1), v(ind_r3 - 1));
 % RHS
 R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3) ./...
     (v(ind_r2 + 1 : ind_r3) + gas_o2.Km_eNOS);
@@ -85,8 +85,8 @@ rhs_O2_23 = r_coeff_o2 .* -R_NO_23;
 C_23 = MakeDirichletNeumannRHS(v(ind_r2), gamma_v_23, a_23(1), h, rhs_O2_23);
 v(ind_r2 + 1 : ind_r3) = A_23 \ C_23;  % Solving
 % Neumann BC for continous mass flux using one-sided approx
-% delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
-delta_v_34 = CentralApprox(h, v(ind_r4 + 1), v(ind_r4 - 1));
+delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
+% delta_v_34 = CentralApprox(h, v(ind_r4 + 1), v(ind_r4 - 1));
 % RHS
 app_Km_34 = para.Km * (1 + u(ind_r3 + 1 : ind_r4) ./ gas_no.C_ref);
 R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4) ./...
@@ -104,7 +104,7 @@ C_45(1) = C_45(1) - (1 - a_45(1)) * v(ind_r4);
 C_45(end) = C_45(end) - (1 + a_45(end)) * v(end);
 v(ind_r4 + 1 : end - 1) = A_45 \ C_45;  % Solving
 
-for ii = 1 : 2
+for ii = 1 : 1
   u_old = u;  % copy previous solution to check for steady state
   v_old = v;
   %=============================================================================
@@ -114,9 +114,9 @@ for ii = 1 : 2
   % Neumann BC for zero mass flux
   u(1) = u(2);
   % Neumann BC for continuous mass flux using one-sided approx
-  % sigma_u_01 = ForwardOneSideApprox(h, u(ind_r1), u(ind_r1 + 1), u(ind_r1 + 2));
+  sigma_u_01 = ForwardOneSideApprox(h, u(ind_r1), u(ind_r1 + 1), u(ind_r1 + 2));
   % imaginary node
-  sigma_u_01 = CentralApprox(h, u(ind_r1 + 1), u(ind_r1 - 1));
+  % sigma_u_01 = CentralApprox(h, u(ind_r1 + 1), u(ind_r1 - 1));
   % RHS
   R_NO_01 = lambda_core .* u(2 : ind_r1);
   rhs_no_01 = r_coeff_no .* R_NO_01;
@@ -130,16 +130,16 @@ for ii = 1 : 2
   %=============================================================================
   % NO
   % Neumann BC for continuous mass flux using one-sided approx
-  % phi_u_12 = ForwardOneSideApprox(h, u(ind_r2), u(ind_r2 + 1), u(ind_r2 + 2));
-  phi_u_12 = CentralApprox(h, u(ind_r2 + 1), u(ind_r2 - 1));
+  phi_u_12 = ForwardOneSideApprox(h, u(ind_r2), u(ind_r2 + 1), u(ind_r2 + 2));
+  % phi_u_12 = CentralApprox(h, u(ind_r2 + 1), u(ind_r2 - 1));
   % RHS
   rhs_no_12 = zeros(nr_i_12, 1);
   B_12 = MakeDirichletNeumannRHS(u(ind_r1), phi_u_12, a_12(1), h, rhs_no_12);
   u(ind_r1 + 1 : ind_r2) = A_12 \ B_12;  % Solving
   % O2
   % Neumann BC for continous mass flux using one-sided approx
-  % phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
-  phi_v_12 = CentralApprox(h, v(ind_r2 + 1), v(ind_r2 - 1));
+  phi_v_12 = ForwardOneSideApprox(h, v(ind_r2), v(ind_r2 + 1), v(ind_r2 + 2));
+  % phi_v_12 = CentralApprox(h, v(ind_r2 + 1), v(ind_r2 - 1));
   % RHS
   rhs_o2_12 = zeros(nr_i_12, 1);
   C_12 = MakeDirichletNeumannRHS(v(ind_r1), phi_v_12, a_12(1), h, rhs_o2_12);
@@ -150,8 +150,8 @@ for ii = 1 : 2
   %=============================================================================
   % NO
   % Neumann BC for continuous mass flux using one-sided approx
-  % gamma_u_23 = ForwardOneSideApprox(h, u(ind_r3), u(ind_r3 + 1), u(ind_r3 + 2));
-  gamma_u_23 = CentralApprox(h, u(ind_r3 + 1), u(ind_r3 - 1));
+  gamma_u_23 = ForwardOneSideApprox(h, u(ind_r3), u(ind_r3 + 1), u(ind_r3 + 2));
+  % gamma_u_23 = CentralApprox(h, u(ind_r3 + 1), u(ind_r3 - 1));
   % NO production term
   R_NO_23 = -gas_no.R_max .* v(ind_r2 + 1 : ind_r3) ./...
       (v(ind_r2 + 1 : ind_r3) + gas_o2.Km_eNOS);
@@ -161,8 +161,8 @@ for ii = 1 : 2
   u(ind_r2 + 1 : ind_r3) = A_23 \ B_23;  % Solving
   % O2
   % Neumann BC for continuous mass flux using one-sided approx
-  % gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
-  gamma_v_23 = CentralApprox(h, v(ind_r3 + 1), v(ind_r3 - 1));
+  gamma_v_23 = ForwardOneSideApprox(h, v(ind_r3), v(ind_r3 + 1), v(ind_r3 + 2));
+  % gamma_v_23 = CentralApprox(h, v(ind_r3 + 1), v(ind_r3 - 1));
   % RHS
   rhs_o2_23 = r_coeff_o2 .* -R_NO_23;
   C_23 = MakeDirichletNeumannRHS(v(ind_r2), gamma_v_23, a_23(1), h, rhs_o2_23);
@@ -174,8 +174,8 @@ for ii = 1 : 2
   %=============================================================================
   % NO
   % Neumann BC for continous mass flux using one-sided approx
-  % delta_u_34 = ForwardOneSideApprox(h, u(ind_r4), u(ind_r4 + 1), u(ind_r4 + 2));
-  delta_u_34 = CentralApprox(h, u(ind_r4 + 1), u(ind_r4 - 1));
+  delta_u_34 = ForwardOneSideApprox(h, u(ind_r4), u(ind_r4 + 1), u(ind_r4 + 2));
+  % delta_u_34 = CentralApprox(h, u(ind_r4 + 1), u(ind_r4 - 1));
   R_NO_34 = para.lambda_vw .* u(ind_r3 + 1 : ind_r4);
   % RHS
   rhs_no_34 = r_coeff_no .* R_NO_34;
@@ -183,8 +183,8 @@ for ii = 1 : 2
   u(ind_r3 + 1 : ind_r4) = A_34 \ B_34;  % Solving
   % O2
   % Neumann BC for continous mass flux using one-sided approx
-  % delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
-  delta_v_34 = CentralApprox(h, v(ind_r4 + 1), v(ind_r4 - 1));
+  delta_v_34 = ForwardOneSideApprox(h, v(ind_r4), v(ind_r4 + 1), v(ind_r4 + 2));
+  % delta_v_34 = CentralApprox(h, v(ind_r4 + 1), v(ind_r4 - 1));
   app_Km_34 = para.Km * (1 + u(ind_r3 + 1 : ind_r4) ./ gas_no.C_ref);
   R_O2_34 = gas_o2.Q_max_vw .* v(ind_r3 + 1 : ind_r4) ./...
       (v(ind_r3 + 1 : ind_r4) + app_Km_34);
