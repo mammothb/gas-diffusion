@@ -13,7 +13,7 @@ function B = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, a, ind_r1,...
   B_34 = r_coeff_no .* R_NO_34;
   B_45 = r_coeff_no .* R_NO_45;
   % Overall RHS
-  B = [B_01; B_12; B_23; B_34; B_45];
-  B(1) = B(1) - (1 - a(1)) * u(1);
-  B(end) = B(end) - (1 + a(end)) * u(end);
+  B = [0; B_01; B_12; B_23; B_34; B_45; 0];
+  % B(1) = B(1) - (1 - a(1)) * u(1);
+  % B(end) = B(end) - (1 + a(end)) * u(end);
 end

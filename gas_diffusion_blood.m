@@ -9,7 +9,7 @@ lambda_core = para.lambda_b / 2 * (1 + para.int_r * para.int_r /...
     (para.int_r - cfl) / (para.int_r - cfl));
 
 %% Simulation parameters
-h = 0.05;  % [um], space step
+h = 0.5;  % [um], space step
 if mod(para.R, h) > 1e-20
   error('Domain and space step incompatible');
 end
@@ -49,33 +49,42 @@ r_coeff_o2 = h * h / gas_o2.d_coeff / para.alpha;
 
 %% LHS
 a = h / 2 ./ r (2 : end - 1);
-diags_NO = [[1 - a(2 : end)'; 0],...
-            -2 * ones(nr_i, 1),...
-            [0; 1 + a(1 : end - 1)']];
-A_NO = spdiags(diags_NO, [-1; 0; 1], nr_i, nr_i);
+diags_NO = [[1 - a(1 : end)'; -4; 0],...
+            [-3; -2 * ones(nr_i, 1); 3],...
+            [0; 4; 1 + a(1 : end)']];
+A_NO = spdiags(diags_NO, [-1; 0; 1], nr, nr);
+A_NO(1, 3) = -1;
+A_NO(end, end - 2) = 1;
 
-diags_O2 = [[zeros(nr_i_01 - 1, 1); 1 - a(ind_r1 : end)'; 0],...
-            [ones(nr_i_01, 1); -2 * ones(nr_i - nr_i_01, 1)],...
-            [zeros(nr_i_01, 1); 0; 1 - a(ind_r1 : end - 1)']];
-A_O2 = spdiags(diags_O2, [-1; 0; 1], nr_i, nr_i);
-Af = full(A_O2);
+diags_O2 = [[zeros(nr_01 - 1, 1); 1 - a(ind_r1 : end)'; -4; 0],...
+            [ones(nr_01, 1); -2 * ones(nr_i - nr_i_01, 1); 3],...
+            [zeros(nr_01, 1); 0; 1 - a(ind_r1 : end)']];
+A_O2 = spdiags(diags_O2, [-1; 0; 1], nr, nr);
+A_O2(end, end - 2) = 1;
+Af = full(A_NO);
 
 C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
     ind_r4, nr_i_01, nr_i_12, nr_i_23);
-v(2 : end - 1) = A_O2 \ C;
+% v(2 : end - 1) = A_O2 \ C;
+% v = gmres(A_O2, C, 10000);
+v = A_O2 \ C;
 
 disp(nr_i_01 + nr_i_12 + nr_i_23 + nr_i_34 + nr_i_45);
 
-for ii = 1 : 0
+for ii = 1 : 1
   B = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, a, ind_r1, ind_r2,...
       ind_r3, ind_r4, nr_i_01, nr_i_12, nr_i_23, lambda_core);
-  u(1) = u(2);
-  u(end) = u(end - 1);
-  u(2 : end - 1) = A_NO \ B;
+  % u(1) = u(2);
+  % u(end) = u(end - 1);
+  % u(2 : end - 1) = A_NO \ B;
+  % u = A_NO \ B;
+  u = gmres(A_NO, B, 10, [], 5);
   C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
       ind_r4, nr_i_01, nr_i_12, nr_i_23);
-  v(end) = v(end - 1);
-  v(2 : end - 1) = A_O2 \ C;
+  % v(end) = v(end - 1);
+  % v(2 : end - 1) = A_O2 \ C;
+  % v = gmres(A_O2, C, [], [], 10000);
+  v = A_O2 \ C;
 end
 
 subplot(2, 1, 1);

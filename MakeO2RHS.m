@@ -16,6 +16,6 @@ function C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2,...
   C_34 = r_coeff_o2 .* R_O2_34;
   C_45 = r_coeff_o2 .* R_O2_45;
   % Overall RHS
-  C = [C_01; C_12; C_23; C_34; C_45];
-  C(end) = C(end) - (1 + a(end)) * v(end);
+  C = [gas_o2.P; C_01; C_12; C_23; C_34; C_45; 0];
+  % C(end) = C(end) - (1 + a(end)) * v(end);
 end
