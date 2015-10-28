@@ -2,7 +2,7 @@ clear;
 clf;
 u_ans = zeros(276, 5);
 v_ans = zeros(276, 5);
-tic();
+tic();  % start stopwatch
 for cfl_width = 1 : 5
   %% Model parameters
   para = Parameters();  % general parameters
@@ -14,10 +14,15 @@ for cfl_width = 1 : 5
 
   %% Simulation parameters
   h = 0.5;  % [um], space step
-  omega = 1.25; % factor for successive over relaxation method
+  omega = 1.25;  % factor for successive over relaxation method
+  tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
+  is_unsteady = true;  % while loop toggle
+  % is_unsteady = false;
   if mod(para.R, h) > 1e-20
     error('Domain and space step incompatible');
   end
+
+  %% Various compartments and domain space
   nr = round(para.R / h) + 1;  % number of nodes in r direction
   nr_i = nr - 2;  % number of internal nodes
   ind_r1 = (para.int_r - cfl) / h + 1;  % index denoting end of RBC core
@@ -72,9 +77,6 @@ for cfl_width = 1 : 5
       ind_r4, nr_i_01, nr_i_12, nr_i_23);
   v(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
 
-  tolerance = 1e-7;
-  is_unsteady = true;
-  % is_unsteady = false;
   while is_unsteady
     % Solving for NO
     F = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, a, ind_r1, ind_r2,...
@@ -84,19 +86,20 @@ for cfl_width = 1 : 5
     G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
         ind_r4, nr_i_01, nr_i_12, nr_i_23);
     v_new(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
-
-    disp(max(abs(u_new - u)));
     % Checks if steady state is reached
-    if max(abs(u_new - u)) < tolerance
+    u_relative_error = max(abs((u_new - u) ./ u_new));
+    v_relative_error = max(abs((v_new - v) ./ v_new));
+    % fprintf('%.5d %.5d\n', u_relative_error, v_relative_error);
+    if u_relative_error < tolerance && v_relative_error < tolerance
       is_unsteady = false;
     end
     u = u_new;
     v = v_new;
-  end
+  end  % is_unsteady
   u_ans(:, cfl_width) = u;
   v_ans(:, cfl_width) = v;
-end
-disp(toc());
+end  % cfl_width
+disp(toc());  % end stopwatch
 % Write to data file for post processing
 dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' ');
 subplot(2, 1, 1);

@@ -155,4 +155,54 @@
   \draw [dashed] (37.5,0) -- (37.5,7500);
   \end{axis}
   \end{tikzpicture}
+  
+  \newpage
+  Data 4
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+  scale=1.8,
+  xmin=0,
+  %xmax=100,
+  ymin=0,
+  scaled y ticks=base 10:3,
+  xlabel={Distance away from the vessel center [$\mu$m]},
+  ylabel={$C_{NO}$ [$\mu$M]},
+  legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, $\delta=5$},
+  legend style={font=\footnotesize},
+  title={Predicted radial gradients for $C_{NO}$}
+  ]
+  \addplot[cyan] table [x=r, y=u1]{data4.dat};
+  \addplot[red] table [x=r, y=u2]{data4.dat};
+  \addplot[blue] table [x=r, y=u3]{data4.dat};
+  \addplot[green] table [x=r, y=u4]{data4.dat};
+  \addplot[black] table [x=r, y=u5]{data4.dat};
+  \draw [dashed] (25,0) -- (25,700);
+  \draw [dashed] (27.5,0) -- (27.5,700);
+  \draw [dashed] (37.5,0) -- (37.5,700);
+  \end{axis}
+  \end{tikzpicture}
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+  scale=1.8,
+  xmin=0,
+  %xmax=100,
+  ymin=0,
+  xlabel={Distance away from the vessel center [$\mu$m]},
+  ylabel={$P_{O_2}$ [Torr]},
+  legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, $\delta=5$},
+  legend style={font=\footnotesize},
+  title={Predicted radial gradients for $P_{O_2}$}
+  ]
+  \addplot[cyan] table [x=r, y=v1]{data4.dat};
+  \addplot[red] table [x=r, y=v2]{data4.dat};
+  \addplot[blue] table [x=r, y=v3]{data4.dat};
+  \addplot[green] table [x=r, y=v4]{data4.dat};
+  \addplot[black] table [x=r, y=v5]{data4.dat};
+  \draw [dashed] (25,0) -- (25,7500);
+  \draw [dashed] (27.5,0) -- (27.5,7500);
+  \draw [dashed] (37.5,0) -- (37.5,7500);
+  \end{axis}
+  \end{tikzpicture}
 \end{document}
