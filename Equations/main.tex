@@ -46,6 +46,42 @@
   \left (1-\frac{h}{2}P_i \right)u_{i-1}+(-2)u_i+\left (1+\frac{h}{2}P_i 
   \right)u_{i+1}=h^2F_i
   \end{equation}
+  \begin{equation}
+  (-2)u_i=-\left (1-\frac{h}{2}P_i \right)u_{i-1}-\left (1+\frac{h}{2}P_i 
+  \right)u_{i+1}+h^2F_i
+  \end{equation}
+  \begin{equation}
+  u_i=-\frac{1}{2}\left(-\left (1-\frac{h}{2}P_i \right)u_{i-1}-\left 
+  (1+\frac{h}{2}P_i \right)u_{i+1}+h^2F_i \right)
+  \end{equation}
+  
+  Use imaginary node to approximate Neumann BCs:
+  \begin{equation}
+  \frac{u_2-u_0}{2h}=0 \rightarrow u_0 = u_2
+  \end{equation}
+  \begin{equation}
+  \frac{u_{end+1}-u_{end-1}}{2h}=0 \rightarrow u_{end+1} = u_{end-1}
+  \end{equation}
+  
+  Substitute into Eq. \eqref{eq:form} when $i=1$
+  \begin{equation}
+  u_1=-2u_2+h^2F_1
+  \end{equation}
+  
+  Substitute into Eq. \eqref{eq:form} when $i=end$
+  \begin{equation}
+  u_{end}=-\left (1-\frac{h}{2}P_{end} \right)u_{end-1}-\left 
+  (1+\frac{h}{2}P_{end} \right)u_{end+1}+h^2F_{end}
+  \end{equation}
+  \begin{equation}
+  u_{end}=-2u_{end-1}+h^2F_{end}
+  \end{equation}
+  
+  Solving over iterations
+  \begin{equation}
+  u_i^{k+1} = -\frac{1}{2}\left(-\left (1-\frac{h}{2}P_i 
+  \right)u_{i-1}^{k+1}-\left (1+\frac{h}{2}P_i \right)u_{i+1}^k+h^2F_i \right)
+  \end{equation}
 
   Split into 5 sections. Solutions are in the general form $A\ubf=B$.
   
@@ -320,4 +356,38 @@
   v_{T}(r_4)&=v_{VW}(r_4),\\
   v_{T}'(r_5)&=0\rightarrow v_n=v_{n-1}
   \end{align*}
+  
+  \setlength{\extrarowheight}{1.25\baselineskip}
+  \begin{equation}
+  A=
+  \begin{bmatrix}
+  -2 & 1+a_2 & 0 & \cdots & \cdots & \cdots & \cdots & 0\\
+  1-a_3 & -2 & 1+a_3 & \ddots & & & & \vdots\\
+  0 & 1-a_4 & -2 & \ddots & \ddots & &  & \vdots\\
+  \vdots & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
+  \vdots & & \ddots & \ddots & -2 & 1+a_{n-3} & 0 & 0 \\
+  \vdots & & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
+  \vdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
+  0 & \cdots & \cdots & \cdots & \cdots & 1 & -4 & 3\\[5ex]
+  \end{bmatrix},\:
+  \vbf=
+  \begin{bmatrix}
+  v_2\\
+  v_3\\
+  \vdots\\
+  v_i\\
+  \vdots\\
+  v_n
+  \end{bmatrix},\:
+  B=
+  \begin{bmatrix}
+  h^2G_2-(1-a_2)v_1\\
+  h^2G_3\\
+  \vdots\\
+  h^2G_i\\
+  \vdots\\
+  h^2G_{n-1}\\
+  0
+  \end{bmatrix}
+  \end{equation}
 \end{document}
