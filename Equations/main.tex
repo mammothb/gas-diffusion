@@ -82,6 +82,13 @@
   u_i^{k+1} = -\frac{1}{2}\left(-\left (1-\frac{h}{2}P_i 
   \right)u_{i-1}^{k+1}-\left (1+\frac{h}{2}P_i \right)u_{i+1}^k+h^2F_i \right)
   \end{equation}
+  
+  SOR
+  \begin{equation}
+  -\frac{2}{\omega}u_i^{k+1} = -\left (1-\frac{h}{2}P_i  
+  \right)u_{i-1}^{k+1}-\left (1+\frac{h}{2}P_i \right)u_{i+1}^k+h^2F_i - 
+  \left(\frac{2}{\omega}-2 \right)u_i^k
+  \end{equation}
 
   Split into 5 sections. Solutions are in the general form $A\ubf=B$.
   

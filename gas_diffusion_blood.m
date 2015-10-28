@@ -62,6 +62,8 @@ for cfl_width = 1 : 5
   diags_M_O2 = [[1 - a(ind_r1 : end)'; 0; 0],...
                 [1; -2 * ones(nr_i - nr_i_01 + 1, 1)]];
   diag_N_O2 = [0; 0; -1 - a(ind_r1 : end)'];
+  % diag_N_O2 = [[-(2 / omega - 2) * ones(nr, 1)],...
+  %              [0; 0; -1 - a(ind_r1 : end)']];
   M_O2 = spdiags(diags_M_O2, [-1; 0], nr - nr_i_01, nr - nr_i_01);
   N_O2 = spdiags(diag_N_O2, [1],  nr - nr_i_01, nr - nr_i_01);
   N_O2(end, end - 1) = -2;
