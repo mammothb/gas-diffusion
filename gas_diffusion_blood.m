@@ -2,7 +2,7 @@ clear;
 clf;
 u_ans = zeros(276, 5);
 v_ans = zeros(276, 5);
-
+tic();
 for cfl_width = 1 : 5
   %% Model parameters
   para = Parameters();  % general parameters
@@ -14,6 +14,7 @@ for cfl_width = 1 : 5
 
   %% Simulation parameters
   h = 0.5;  % [um], space step
+  omega = 1; % factor for successive over relaxation method
   if mod(para.R, h) > 1e-20
     error('Domain and space step incompatible');
   end
@@ -36,9 +37,11 @@ for cfl_width = 1 : 5
 
   %% Initialization
   u = zeros(nr, 1);  % solution for NO
-  u_new = zeros(nr, 1);  % auxillary variable, u_prime = u'
+  u_new = zeros(nr, 1);  % solution for NO
   v = [gas_o2.P * ones(nr_01, 1); zeros(nr - nr_01, 1)];  % solution for O2
+  v_new = [gas_o2.P * ones(nr_01, 1); zeros(nr - nr_01, 1)];  % solution for O2
   r = linspace(0, para.R, nr);
+  % Display interface positions
   fprintf('r0: %.1f\nr1: %.1f\nr2: %.1f\nr3: %.1f\nr4: %.1f\nr5: %.1f\n',...
       r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
 
@@ -48,69 +51,52 @@ for cfl_width = 1 : 5
 
   %% LHS
   a = h / 2 ./ r (2 : end - 1);
-
-  diags_O2 = [[zeros(nr_01 - 1, 1); 1 - a(ind_r1 : end)'; -4; 0],...
-              [ones(nr_01, 1); -2 * ones(nr_i - nr_i_01, 1); 3],...
-              [zeros(nr_01, 1); 0; 1 - a(ind_r1 : end)']];
-  A_O2 = spdiags(diags_O2, [-1; 0; 1], nr, nr);
-  A_O2(end, end - 2) = 1;
-
-  C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
+  % Create LHS for NO
+  diags_M_NO = [[1 - a'; 0; 0],...
+                -2 * ones(nr, 1)];
+  diag_N_NO = [0; -2; -1 - a'];
+  M_NO = spdiags(diags_M_NO, [-1; 0], nr, nr);
+  N_NO = spdiags(diag_N_NO, [1], nr, nr);
+  N_NO(end, end - 1) = -2;
+  % Create LHS for O2
+  diags_M_O2 = [[1 - a(ind_r1 : end)'; 0; 0],...
+                [1; -2 * ones(nr_i - nr_i_01 + 1, 1)]];
+  diag_N_O2 = [0; 0; -1 - a(ind_r1 : end)'];
+  M_O2 = spdiags(diags_M_O2, [-1; 0], nr - nr_i_01, nr - nr_i_01);
+  N_O2 = spdiags(diag_N_O2, [1],  nr - nr_i_01, nr - nr_i_01);
+  N_O2(end, end - 1) = -2;
+  % Solve for an initial O2 profile
+  G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
       ind_r4, nr_i_01, nr_i_12, nr_i_23);
-  v = A_O2 \ C;
-  tic();
-  tol = 1e-6;
-  flag = true;
-  while flag
-    for jj = 1 : nr
-      rhs = GetNORHS(para, gas_no, gas_o2, ind_r1, ind_r2, ind_r3, ind_r4,...
-          jj, u(jj), v(jj), lambda_core);
-      rhs_o2 = GetO2RHS(para, gas_no, gas_o2, ind_r1, ind_r2, ind_r3, ind_r4,...
-          jj, u(jj), v(jj), lambda_core);
-      if jj == 1
-        u_new(jj) = -0.5 * (-2 * u(jj + 1) + r_coeff_no * rhs);
-      elseif jj == nr
-        u_new(jj) = -0.5 * (-2 * u(jj - 1) + r_coeff_no * rhs);
-      else
-        u_new(jj) = -0.5 * (-(1 - a(jj - 1)) * u_new(jj - 1) -...
-            (1 + a(jj - 1)) * u(jj + 1) + r_coeff_no * rhs);
-      end
-      if jj <= ind_r1
-        v_new(jj) = gas_o2.P;
-      elseif jj == nr
-        v_new(jj) = -0.5 * (-2 * v(jj - 1) + r_coeff_o2 * rhs_o2);
-      else
-        v_new(jj) = -0.5 * (-(1 - a(jj - 1)) * v_new(jj - 1) -...
-            (1 + a(jj - 1)) * v(jj + 1) + r_coeff_o2 * rhs_o2);
-      end
-    end  % jj
+  v(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
+
+  tolerance = 1e-6;
+  is_unsteady = true;
+  % is_unsteady = false;
+  omega = 1;
+  while is_unsteady
+    % Solving for NO
+    F = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, a, ind_r1, ind_r2,...
+        ind_r3, ind_r4, nr_i_01, nr_i_12, nr_i_23, lambda_core);
+    u_new = M_NO \ (N_NO * u + F);
+    % Solving for O2
+    G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
+        ind_r4, nr_i_01, nr_i_12, nr_i_23);
+    v_new(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
+
     disp(max(abs(u_new - u)));
-    if max(abs(u_new - u)) < tol
-      flag = false;
+    % Checks if steady state is reached
+    if max(abs(u_new - u)) < tolerance
+      is_unsteady = false;
     end
     u = u_new;
     v = v_new;
-    % C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
-    %     ind_r4, nr_i_01, nr_i_12, nr_i_23);
-    % v = A_O2 \ C;
   end
-  disp(toc());
   u_ans(:, cfl_width) = u;
   v_ans(:, cfl_width) = v;
 end
-% subplot(2, 1, 1);
-% plot(r(1 : ind_r1), u(1 : ind_r1),...
-%     r(ind_r1 + 1 : ind_r2), u(ind_r1 + 1 : ind_r2),...
-%     r(ind_r2 + 1 : ind_r3), u(ind_r2 + 1 : ind_r3),...
-%     r(ind_r3 + 1 : ind_r4), u(ind_r3 + 1 : ind_r4),...
-%     r(ind_r4 + 1 : end), u(ind_r4 + 1 : end));
-% legend('RBC', 'CFL', 'EC', 'VW', 'T');
-% subplot(2, 1, 2);
-% plot(r(1 : ind_r1), v(1 : ind_r1),...
-%     r(ind_r1 + 1 : ind_r2), v(ind_r1 + 1 : ind_r2),...
-%     r(ind_r2 + 1 : ind_r3), v(ind_r2 + 1 : ind_r3),...
-%     r(ind_r3 + 1 : ind_r4), v(ind_r3 + 1 : ind_r4),...
-%     r(ind_r4 + 1 : end), v(ind_r4 + 1 : end));
+disp(toc());
+% Write to data file for post processing
 dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' ');
 subplot(2, 1, 1);
 plot(r, u_ans(:, 1),...

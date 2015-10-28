@@ -65,16 +65,16 @@
   
   Substitute into Eq. \eqref{eq:form} when $i=1$
   \begin{equation}
-  u_1=-2u_2+h^2F_1
+  (-2)u_1=-2u_2+h^2F_1
   \end{equation}
   
   Substitute into Eq. \eqref{eq:form} when $i=end$
   \begin{equation}
-  u_{end}=-\left (1-\frac{h}{2}P_{end} \right)u_{end-1}-\left 
+  (-2)u_{end}=-\left (1-\frac{h}{2}P_{end} \right)u_{end-1}-\left 
   (1+\frac{h}{2}P_{end} \right)u_{end+1}+h^2F_{end}
   \end{equation}
   \begin{equation}
-  u_{end}=-2u_{end-1}+h^2F_{end}
+  (-2)u_{end}=-2u_{end-1}+h^2F_{end}
   \end{equation}
   
   Solving over iterations
@@ -388,6 +388,53 @@
   \vdots\\
   h^2G_{n-1}\\
   0
+  \end{bmatrix}
+  \end{equation}
+  
+  \setlength{\extrarowheight}{1.25\baselineskip}
+  \begin{equation}
+  M=
+  \begin{bmatrix}
+  1 & 0 & 0 & \cdots & \cdots & \cdots & \cdots & 0\\
+  1-a_2 & -2 & 0 & \ddots & & & & \vdots\\
+  0 & 1-a_3 & -2 & \ddots & \ddots & &  & \vdots\\
+  \vdots & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
+  \vdots & & \ddots & 1-a_{n-3} & -2 & 0 & 0 & 0 \\
+  \vdots & & & \ddots & 1-a_{n-2} & -2 & 0 & 0\\
+  \vdots & \cdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 0\\
+  0 & \cdots & \cdots & \cdots & \cdots & 0 & 0 & 1\\[5ex]
+  \end{bmatrix},
+  \end{equation}
+  \begin{equation}
+  N=
+  \begin{bmatrix}
+  0 & -2 & 0 & \cdots & \cdots & \cdots & \cdots & 0\\
+  0 & 0 & -(1+a_2) & \ddots & & & & \vdots\\
+  0 & 0 & 0 & -(1+a_3) & \ddots & &  & \vdots\\
+  \vdots & \ddots & \ddots & \ddots & \ddots & & & \vdots\\
+  \vdots & & \ddots & \ddots & 0 & -(1+a_{n-3}) & 0 & 0 \\
+  \vdots & & & \ddots & 0 & 0 & -(1+a_{n-2}) & 0\\
+  \vdots & \cdots & \cdots & \cdots & 0 & 0 & 0 & -(1+a_{n-1})\\
+  0 & \cdots & \cdots & \cdots & \cdots & 0 & -2 & 0\\[5ex]
+  \end{bmatrix},\:
+  \ubf=
+  \begin{bmatrix}
+  u_2\\
+  u_3\\
+  \vdots\\
+  u_i\\
+  \vdots\\
+  u_n
+  \end{bmatrix},\:
+  B=
+  \begin{bmatrix}
+  h^2F_2-(1-a_2)u_1\\
+  h^2F_3\\
+  \vdots\\
+  h^2F_i\\
+  \vdots\\
+  h^2F_{n-1}\\
+  2h\sigma
   \end{bmatrix}
   \end{equation}
 \end{document}
