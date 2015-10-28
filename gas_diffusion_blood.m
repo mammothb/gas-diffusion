@@ -14,7 +14,7 @@ for cfl_width = 1 : 5
 
   %% Simulation parameters
   h = 0.5;  % [um], space step
-  omega = 1; % factor for successive over relaxation method
+  omega = 1.25; % factor for successive over relaxation method
   if mod(para.R, h) > 1e-20
     error('Domain and space step incompatible');
   end
@@ -53,29 +53,28 @@ for cfl_width = 1 : 5
   a = h / 2 ./ r (2 : end - 1);
   % Create LHS for NO
   diags_M_NO = [[1 - a'; 0; 0],...
-                -2 * ones(nr, 1)];
-  diag_N_NO = [0; -2; -1 - a'];
+                -2 / omega * ones(nr, 1)];
+  diag_N_NO = [(2 - 2 / omega) * ones(nr, 1),...
+               [0; -2; -1 - a']];
   M_NO = spdiags(diags_M_NO, [-1; 0], nr, nr);
-  N_NO = spdiags(diag_N_NO, [1], nr, nr);
+  N_NO = spdiags(diag_N_NO, [0; 1], nr, nr);
   N_NO(end, end - 1) = -2;
   % Create LHS for O2
   diags_M_O2 = [[1 - a(ind_r1 : end)'; 0; 0],...
-                [1; -2 * ones(nr_i - nr_i_01 + 1, 1)]];
-  diag_N_O2 = [0; 0; -1 - a(ind_r1 : end)'];
-  % diag_N_O2 = [[-(2 / omega - 2) * ones(nr, 1)],...
-  %              [0; 0; -1 - a(ind_r1 : end)']];
+                [1; -2 / omega * ones(nr_i - nr_i_01 + 1, 1)]];
+  diag_N_O2 = [[0; (2 - 2 / omega) * ones(nr - nr_i_01 - 1, 1)],...
+               [0; 0; -1 - a(ind_r1 : end)']];
   M_O2 = spdiags(diags_M_O2, [-1; 0], nr - nr_i_01, nr - nr_i_01);
-  N_O2 = spdiags(diag_N_O2, [1],  nr - nr_i_01, nr - nr_i_01);
+  N_O2 = spdiags(diag_N_O2, [0; 1],  nr - nr_i_01, nr - nr_i_01);
   N_O2(end, end - 1) = -2;
   % Solve for an initial O2 profile
   G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
       ind_r4, nr_i_01, nr_i_12, nr_i_23);
   v(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
 
-  tolerance = 1e-6;
+  tolerance = 1e-7;
   is_unsteady = true;
   % is_unsteady = false;
-  omega = 1;
   while is_unsteady
     % Solving for NO
     F = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, a, ind_r1, ind_r2,...
