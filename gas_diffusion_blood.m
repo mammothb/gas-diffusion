@@ -32,14 +32,14 @@ nr_i_45 = nr_45 - 1;  % size of matrix for r4 < r <= r5
 
 %% Initialization
 u = zeros(nr, 1);  % solution for NO
-% v = gas_o2.P * ones(nr, 1);  % solution for O2
+u_new = zeros(nr, 1);  % auxillary variable, u_prime = u'
 v = [gas_o2.P * ones(nr_01, 1); zeros(nr - nr_01, 1)];  % solution for O2
 r = linspace(0, para.R, nr);
-r_01 = linspace(r(1), r(ind_r1), nr_01);
-r_12 = linspace(r(ind_r1), r(ind_r2), nr_12);
-r_23 = linspace(r(ind_r2), r(ind_r3), nr_23);
-r_34 = linspace(r(ind_r3), r(end), nr_34);
-r_45 = linspace(r(ind_r3), r(end), nr_45);
+% r_01 = linspace(r(1), r(ind_r1), nr_01);
+% r_12 = linspace(r(ind_r1), r(ind_r2), nr_12);
+% r_23 = linspace(r(ind_r2), r(ind_r3), nr_23);
+% r_34 = linspace(r(ind_r3), r(end), nr_34);
+% r_45 = linspace(r(ind_r3), r(end), nr_45);
 fprintf('r0: %.1f\nr1: %.1f\nr2: %.1f\nr3: %.1f\nr4: %.1f\nr5: %.1f\n',...
     r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
 
@@ -49,43 +49,48 @@ r_coeff_o2 = h * h / gas_o2.d_coeff / para.alpha;
 
 %% LHS
 a = h / 2 ./ r (2 : end - 1);
-diags_NO = [[1 - a(1 : end)'; -4; 0],...
-            [-3; -2 * ones(nr_i, 1); 3],...
-            [0; 4; 1 + a(1 : end)']];
-A_NO = spdiags(diags_NO, [-1; 0; 1], nr, nr);
-A_NO(1, 3) = -1;
-A_NO(end, end - 2) = 1;
+% diags_NO = [[1 - a(1 : end)'; -4; 0],...
+%             [-3; -2 * ones(nr_i, 1); 3],...
+%             [0; 4; 1 + a(1 : end)']];
+% A_NO = spdiags(diags_NO, [-1; 0; 1], nr, nr);
+% A_NO(1, 3) = -1;
+% A_NO(end, end - 2) = 1;
 
 diags_O2 = [[zeros(nr_01 - 1, 1); 1 - a(ind_r1 : end)'; -4; 0],...
             [ones(nr_01, 1); -2 * ones(nr_i - nr_i_01, 1); 3],...
             [zeros(nr_01, 1); 0; 1 - a(ind_r1 : end)']];
 A_O2 = spdiags(diags_O2, [-1; 0; 1], nr, nr);
 A_O2(end, end - 2) = 1;
-Af = full(A_NO);
 
 C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
     ind_r4, nr_i_01, nr_i_12, nr_i_23);
-% v(2 : end - 1) = A_O2 \ C;
-% v = gmres(A_O2, C, 10000);
 v = A_O2 \ C;
-
-disp(nr_i_01 + nr_i_12 + nr_i_23 + nr_i_34 + nr_i_45);
-
-for ii = 1 : 1
-  B = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, a, ind_r1, ind_r2,...
-      ind_r3, ind_r4, nr_i_01, nr_i_12, nr_i_23, lambda_core);
-  % u(1) = u(2);
-  % u(end) = u(end - 1);
-  % u(2 : end - 1) = A_NO \ B;
-  % u = A_NO \ B;
-  u = gmres(A_NO, B, 10, [], 5);
+tic();
+tol = 1e-6;
+flag = true;
+while flag
+  for jj = 1 : nr
+    rhs = GetNORHS(para, gas_no, gas_o2, ind_r1, ind_r2, ind_r3, ind_r4,...
+        jj, u(jj), v(jj), lambda_core);
+    if jj == 1
+      u_new(jj) = -0.5 * (-2 * u(jj + 1) + r_coeff_no * rhs);
+    elseif jj == nr
+      u_new(jj) = -0.5 * (-2 * u(jj - 1) + r_coeff_no * rhs);
+    else
+      u_new(jj) = -0.5 * (-(1 - a(jj - 1)) * u_new(jj - 1) -...
+          (1 + a(jj - 1)) * u(jj + 1) + r_coeff_no * rhs);
+    end
+  end  % jj
+  disp(max(abs(u_new - u)));
+  if max(abs(u_new - u)) < tol
+    flag = false;
+  end
+  u = u_new;
   C = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
       ind_r4, nr_i_01, nr_i_12, nr_i_23);
-  % v(end) = v(end - 1);
-  % v(2 : end - 1) = A_O2 \ C;
-  % v = gmres(A_O2, C, [], [], 10000);
   v = A_O2 \ C;
 end
+disp(toc());
 
 subplot(2, 1, 1);
 plot(r(1 : ind_r1), u(1 : ind_r1),...
