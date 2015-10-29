@@ -7,8 +7,8 @@ gas_no = Gas('NO', para);  % create object for NO gas
 gas_o2 = Gas('O2', para);  % create object for O2 gas
 
 % Simulation parameters
-h = 0.1;  % [um], space step
-omega = 1.95;  % factor for successive over relaxation method
+h = 0.5;  % [um], space step
+omega = 1.75;  % factor for successive over relaxation method
 tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
 if mod(para.R, h) > 1e-20
   error('Domain and space step incompatible');
