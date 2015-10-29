@@ -1,30 +1,51 @@
 clear;
 clf;
-u_ans = zeros(276, 5);
-v_ans = zeros(276, 5);
+%% Parameters that do not change in the loop
+% Model parameters
+para = Parameters();  % general parameters
+gas_no = Gas('NO', para);  % create object for NO gas
+gas_o2 = Gas('O2', para);  % create object for O2 gas
+
+% Simulation parameters
+h = 0.1;  % [um], space step
+omega = 1.95;  % factor for successive over relaxation method
+tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
+if mod(para.R, h) > 1e-20
+  error('Domain and space step incompatible');
+end
+
+% Various compartments and domain space
+nr = round(para.R / h) + 1;  % number of nodes in r direction
+nr_i = nr - 2;  % number of internal nodes
+r = linspace(0, para.R, nr);
+
+% Big solution matrix
+u_ans = zeros(nr, 5);
+v_ans = zeros(nr, 5);
+
+% Set up coefficient for R terms for clarity
+r_coeff_no = h * h / gas_no.d_coeff;
+r_coeff_o2 = h * h / gas_o2.d_coeff / para.alpha;
+
+%% LHS
+a = h / 2 ./ r(2 : end - 1);
+% Create LHS for NO
+D_NO = spdiags(-2 * ones(nr, 1), 0, nr, nr);
+L_NO = spdiags([1 - a'; 2; 0], -1, nr, nr);
+U_NO = spdiags([0; 2; 1 + a'], 1, nr, nr);
+M_NO = L_NO + D_NO ./ omega;
+N_NO = D_NO ./ omega - D_NO - U_NO;
+
 tic();  % start stopwatch
-for cfl_width = 1 : 1
-  %% Model parameters
-  para = Parameters();  % general parameters
-  gas_no = Gas('NO', para);  % create object for NO gas
-  gas_o2 = Gas('O2', para);  % create object for O2 gas
+for cfl_width = 1 : 5
   cfl = cfl_width;  % [um], CFL width
   lambda_core = para.lambda_b / 2 * (1 + para.int_r * para.int_r /...
       (para.int_r - cfl) / (para.int_r - cfl));
 
-  %% Simulation parameters
-  h = 0.5;  % [um], space step
-  omega = 1.25;  % factor for successive over relaxation method
-  tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
   is_unsteady = true;  % while loop toggle
   % is_unsteady = false;
-  if mod(para.R, h) > 1e-20
-    error('Domain and space step incompatible');
-  end
 
   %% Various compartments and domain space
-  nr = round(para.R / h) + 1;  % number of nodes in r direction
-  nr_i = nr - 2;  % number of internal nodes
   ind_r1 = (para.int_r - cfl) / h + 1;  % index denoting end of RBC core
   ind_r2 = para.int_r / h + 1;  % index denoting end of vessel interior
   ind_r3 = ind_r2 + para.len_EC / h;  % index denoting end of EC layer
@@ -45,35 +66,19 @@ for cfl_width = 1 : 1
   u_new = zeros(nr, 1);  % solution for NO
   v = [gas_o2.P * ones(nr_01, 1); zeros(nr - nr_01, 1)];  % solution for O2
   v_new = [gas_o2.P * ones(nr_01, 1); zeros(nr - nr_01, 1)];  % solution for O2
-  r = linspace(0, para.R, nr);
   % Display interface positions
   fprintf('CFL width: %d\n', cfl_width);
   fprintf('   r0    r1    r2    r3    r4    r5 \n');
   fprintf('%5.1f %5.1f %5.1f %5.1f %5.1f %5.1f\n',...
       r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
 
-  % Set up coefficient for R terms for clarity
-  r_coeff_no = h * h / gas_no.d_coeff;
-  r_coeff_o2 = h * h / gas_o2.d_coeff / para.alpha;
-
-  %% LHS
-  a = h / 2 ./ r (2 : end - 1);
-  % Create LHS for NO
-  diags_M_NO = [[1 - a'; 0; 0],...
-                -2 / omega * ones(nr, 1)];
-  diag_N_NO = [(2 - 2 / omega) * ones(nr, 1),...
-               [0; -2; -1 - a']];
-  M_NO = spdiags(diags_M_NO, [-1; 0], nr, nr);
-  N_NO = spdiags(diag_N_NO, [0; 1], nr, nr);
-  N_NO(end, end - 1) = -2;
   % Create LHS for O2
-  diags_M_O2 = [[1 - a(ind_r1 : end)'; 0; 0],...
-                [1; -2 / omega * ones(nr_i - nr_i_01 + 1, 1)]];
-  diag_N_O2 = [[0; (2 - 2 / omega) * ones(nr - nr_i_01 - 1, 1)],...
-               [0; 0; -1 - a(ind_r1 : end)']];
-  M_O2 = spdiags(diags_M_O2, [-1; 0], nr - nr_i_01, nr - nr_i_01);
-  N_O2 = spdiags(diag_N_O2, [0; 1],  nr - nr_i_01, nr - nr_i_01);
-  N_O2(end, end - 1) = -2;
+  D_O2 = spdiags([1; -2 * ones(nr_i - nr_i_01 + 1, 1)], 0, nr - nr_i_01,...
+      nr - nr_i_01);
+  L_O2 = spdiags([1 - a(ind_r1 : end)'; 2; 0], -1, nr - nr_i_01, nr - nr_i_01);
+  U_O2 = spdiags([0; 0; 1 + a(ind_r1 : end)'], 1, nr - nr_i_01, nr - nr_i_01);
+  M_O2 = L_O2 + D_O2 ./ omega;
+  N_O2 = D_O2 ./ omega - D_O2 - U_O2;
   % Solve for an initial O2 profile
   G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, a, ind_r2, ind_r3,...
       ind_r4, nr_i_01, nr_i_12, nr_i_23);
@@ -98,10 +103,12 @@ for cfl_width = 1 : 1
     u = u_new;
     v = v_new;
   end  % is_unsteady
+  % Add solution to big solution matrix
   u_ans(:, cfl_width) = u;
   v_ans(:, cfl_width) = v;
 end  % cfl_width
 disp(toc());  % end stopwatch
+
 % Write to data file for post processing
 dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' ');
 subplot(2, 1, 1);
