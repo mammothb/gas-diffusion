@@ -10,6 +10,7 @@ gas_o2 = Gas('O2', para);  % create object for O2 gas
 h = 0.5;  % [um], space step
 omega = 1.75;  % factor for successive over relaxation method
 tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
+max_cfl = 5;  % [um], Maximum CFL width to test for
 if mod(para.R, h) > 1e-20
   error('Domain and space step incompatible');
 end
@@ -20,8 +21,8 @@ nr_i = nr - 2;  % number of internal nodes
 r = linspace(0, para.R, nr);
 
 % Big solution matrix
-u_ans = zeros(nr, 5);
-v_ans = zeros(nr, 5);
+u_ans = zeros(nr, max_cfl);
+v_ans = zeros(nr, max_cfl);
 
 % Set up coefficient for R terms for clarity
 r_coeff_no = h * h / gas_no.d_coeff;
