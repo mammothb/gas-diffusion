@@ -1,0 +1,68 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage[parfill]{parskip}
+\usepackage{pgfplots}
+
+\newcommand{\Psim}{\ensuremath{\Psi_m(\xi)}}
+\newcommand{\Psin}{\ensuremath{\Psi_n(\xi)}}
+
+\begin{document}
+  Governing equation:
+  \begin{equation*}
+  \frac{D_{NO}}{r}\frac{d}{dr}\left(r\frac{dC_{NO}}{dr}\right)=R_{NO}
+  \end{equation*}
+  \begin{equation*}
+  \frac{\alpha D_{O_2}}{r}\frac{d}{dr}\left(r\frac{dP_{O_2}}{dr}\right)=R_{O_2}
+  \end{equation*}
+  \begin{equation}
+  u''+P(r)u'=F(r)
+  \end{equation}
+  \begin{equation*}
+  \frac{d^2C_{NO}}{dr^2}+\frac{1}{r}\frac{dC_{NO}}{dr}=\frac{R_{NO}}{D_{NO}}
+  \end{equation*}
+  \begin{equation*}
+  \frac{d^2P_{O_2}}{dr^2}+\frac{1}{r}\frac{dP_{O_2}}{dr}=\frac{R_{O_2}}{\alpha 
+  D_{O_2}}
+  \end{equation*}
+  \begin{equation}
+  v''+P(r)v'=G(r)
+  \end{equation}
+    
+  RBC: $r_0 < r < r_1$
+  
+  $R_{NO}=\lambda_{core}u$
+  \begin{equation}
+  \int \omega 
+  \left[\frac{d}{dr}\left(\frac{du}{dr}\right) + P(r)\frac{du}{dr} - 
+  \frac{\lambda_{core}}{D_{NO}}u \right]dr = 0
+  \end{equation}
+  
+  Integration by parts: $\int f \frac{dg}{dx} dx = fg - \int g 
+  \frac{df}{dx}dx$. Choose $f = \omega$ and $g = \frac{du}{dr}$
+  
+  Weak form:
+  \begin{equation}
+  \int -\frac{du}{dr} \frac{d\omega}{dr} + \omega \left[P(r)\frac{du}{dr} - 
+  \frac{\lambda_{core}}{D_{NO}}u \right] dr = -\omega\frac{du}{dr}
+  \end{equation}
+  
+  Discretization:
+  \begin{equation}
+  u_n \int_{0}^{1} \left(-\frac{d\Psi_n}{d\xi} \frac{d\xi}{dr} 
+  \frac{d\Psi_m}{d\xi} \frac{d\xi}{dr} + \Psi_m \Psi_n P_n \frac{d\Psi_n}{d\xi} 
+  \frac{d\xi}{dr} - \frac{\lambda_{core}}{D_{NO}} \Psi_m\Psi_n\right) J \: d\xi 
+  = -\omega \frac{du}{dr}
+  \end{equation}
+  where
+  \begin{align*}
+  J &= \left|\frac{dr}{d\xi}\right|,\\
+  u(\xi) &= \Psi_n u_n,\\
+  P(\xi) &= \Psi_n P_n,\\
+  \omega(\xi) &= \Psi_m
+  \end{align*}
+  
+\end{document}

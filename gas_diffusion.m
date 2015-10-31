@@ -10,7 +10,7 @@ gas_o2 = Gas('O2', para);  % create object for O2 gas
 h = 0.5;           % [um], space step
 omega = 1.95;      % factor for successive over relaxation method
 tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
-max_cfl = 1;       % [um], Maximum CFL width to test for
+max_cfl = 5;       % [um], Maximum CFL width to test for
 if mod(para.R, h) > 1e-20
   error('Domain and space step incompatible');
 end
