@@ -10,7 +10,7 @@ gas_o2 = Gas('O2', para);  % create object for O2 gas
 h = 0.5;           % [um], space step
 omega = 1.95;      % factor for successive over relaxation method
 tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
-max_cfl = 5;       % [um], Maximum CFL width to test for
+max_cfl = 1;       % [um], Maximum CFL width to test for
 if mod(para.R, h) > 1e-20
   error('Domain and space step incompatible');
 end
@@ -38,6 +38,7 @@ N_NO = D_NO ./ omega - D_NO - U_NO;
 
 tic();  % start stopwatch
 for cfl_width = 1 : max_cfl
+  iteration = 0;
   cfl = cfl_width;  % [um], CFL width
   lambda_core = para.lambda_b / 2 * (1 + para.int_r * para.int_r /...
       (para.int_r - cfl) / (para.int_r - cfl));
@@ -83,6 +84,7 @@ for cfl_width = 1 : max_cfl
   v(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
   % Starts iterating to find the answer
   while is_unsteady
+    iteration = iteration + 1;
     % Solving for NO
     F = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, r_01, nr_12,...
         r_23, r_34, r_45, lambda_core);
@@ -104,6 +106,7 @@ for cfl_width = 1 : max_cfl
     u = u_new;
     v = v_new;
   end  % is_unsteady
+  fprintf('Steady state reached in %d iterations\n', iteration);
   % Add solution to big solution matrix
   u_ans(:, cfl_width) = u;
   v_ans(:, cfl_width) = v;
