@@ -11,9 +11,7 @@ h = 0.5;           % [um], space step
 omega = 1.95;      % factor for successive over relaxation method
 tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
 max_cfl = 5;       % [um], Max CFL width to test for
-if mod(para.R, h) > 1e-20
-  error('Domain and space step incompatible');
-end
+if mod(para.R, h) > 1e-20, error('Domain and space step incompatible'); end
 
 % Various compartments and domain space
 nr = round(para.R / h) + 1;  % number of nodes in r direction
