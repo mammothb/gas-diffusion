@@ -1,5 +1,6 @@
 %===============================================================================
 % Creates an object for various gas types NO and O2
+%
 % \param which_gas indicates which gas to create
 % \param param parameters object
 %===============================================================================

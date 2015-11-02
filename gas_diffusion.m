@@ -6,11 +6,28 @@ para = Parameters();  % general parameters
 gas_no = Gas('NO', para);  % create object for NO gas
 gas_o2 = Gas('O2', para);  % create object for O2 gas
 
-% Simulation parameters
-h = 0.5;           % [um], space step
-omega = 1.95;      % factor for successive over relaxation method
-tolerance = 1e-6;  % Tolerance for relative error for Gauss-Seidel
-max_cfl = 5;       % [um], Maximum CFL width to test for
+%===============================================================================
+% Simulation parameters/flags
+%
+% \param h [um], space step
+% \param omega Factor for Successive over relaxation method
+% \param tolerance Tolerance of relative error between iterations
+% \param max_cfl [um], Maximum CFL width to test for
+% \param which_scheme Determines which scheme to use for Neumann BCs
+%        1: centered approx + correction term, first-order accurate
+%        2: one-sided approx, second-order accurate
+% \param show_err Boolean for displaying relative error between iterations
+% \param write_data Boolean to decide where results are written to data file
+%===============================================================================
+h = 0.5;
+omega = 1.95;
+tolerance = 1e-6;
+max_cfl = 5;
+which_scheme = 2;
+show_err = false;
+write_data = true;
+
+% Check if space step size is appropriate
 if mod(para.R, h) > 1e-20, error('Domain and space step incompatible'); end
 
 % Various compartments and domain space
@@ -25,12 +42,24 @@ v_ans = zeros(nr, max_cfl);
 r_coeff_no = h * h / gas_no.d_coeff;
 r_coeff_o2 = h * h / gas_o2.d_coeff / para.alpha;
 
-% a-terms for LHS matrix
+% a terms for LHS matrix
 a = h / 2 ./ r(2 : end - 1);
+
 % Create LHS for NO
-D_NO = spdiags(-2 * ones(nr, 1), 0, nr, nr);
-L_NO = spdiags([1 - a'; 2; 0], -1, nr, nr);
-U_NO = spdiags([0; 2; 1 + a'], 1, nr, nr);
+switch which_scheme
+case 1
+  D_NO = spdiags(-2 * ones(nr, 1), 0, nr, nr);
+  L_NO = spdiags([1 - a'; 2; 0], -1, nr, nr);
+  U_NO = spdiags([0; 2; 1 + a'], 1, nr, nr);
+case 2
+  D_NO = spdiags([-3; -2 * ones(nr - 2, 1); 3], 0, nr, nr);
+  L_NO = spdiags([1 - a'; -4; 0], -1, nr, nr);
+  U_NO = spdiags([0; 4; 1 + a'], 1, nr, nr);
+  L_NO(end, end - 2) = 1;
+  U_NO(1, 3) = -1;
+otherwise
+  error('Invalid Neumann BC scheme');
+end
 M_NO = L_NO + D_NO ./ omega;
 N_NO = D_NO ./ omega - D_NO - U_NO;
 
@@ -42,7 +71,6 @@ for cfl_width = 1 : max_cfl
       (para.int_r - cfl) / (para.int_r - cfl));
   % while loop toggle
   is_unsteady = true;
-  % is_unsteady = false;
 
   %% Various compartments and domain space
   % Interface indexes
@@ -71,31 +99,41 @@ for cfl_width = 1 : max_cfl
   fprintf('%5.1f %5.1f %5.1f %5.1f %5.1f %5.1f\n',...
       r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
   % Create LHS for O2
-  D_O2 = spdiags([1; -2 * ones(nr_15, 1)], 0, nr_15 + 1, nr_15 + 1);
-  L_O2 = spdiags([1 - a(ind_r1 : end)'; 2; 0], -1, nr_15 + 1, nr_15 + 1);
-  U_O2 = spdiags([0; 0; 1 + a(ind_r1 : end)'], 1, nr_15 + 1, nr_15 + 1);
+  switch which_scheme
+  case 1
+    D_O2 = spdiags([1; -2 * ones(nr_15, 1)], 0, nr_15 + 1, nr_15 + 1);
+    L_O2 = spdiags([1 - a(ind_r1 : end)'; 2; 0], -1, nr_15 + 1, nr_15 + 1);
+    U_O2 = spdiags([0; 0; 1 + a(ind_r1 : end)'], 1, nr_15 + 1, nr_15 + 1);
+  case 2
+    D_O2 = spdiags([1; -2 * ones(nr_15 - 1, 1); 3], 0, nr_15 + 1, nr_15 + 1);
+    L_O2 = spdiags([1 - a(ind_r1 : end)'; -4; 0], -1, nr_15 + 1, nr_15 + 1);
+    U_O2 = spdiags([0; 0; 1 + a(ind_r1 : end)'], 1, nr_15 + 1, nr_15 + 1);
+    L_O2(end, end - 2) = 1;
+  otherwise
+    error('Invalid Neumann BC scheme');
+  end
   M_O2 = L_O2 + D_O2 ./ omega;
   N_O2 = D_O2 ./ omega - D_O2 - U_O2;
   % Solve for an initial O2 profile
-  G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, nr_12, r_23, r_34,...
-      r_45);
+  G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, which_scheme, nr_12,...
+      r_23, r_34, r_45);
   v(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
   % Starts iterating to find the answer
   while is_unsteady
     iteration = iteration + 1;
     % Solving for NO
-    F = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, r_01, nr_12,...
-        r_23, r_34, r_45, lambda_core);
+    F = MakeNORHS(para, gas_o2, gas_no, u, v, r_coeff_no, which_scheme, r_01,...
+        nr_12, r_23, r_34, r_45, lambda_core);
     u_new = M_NO \ (N_NO * u + F);
     % Solving for O2
-    G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, nr_12, r_23,...
-        r_34, r_45);
+    G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, which_scheme,...
+        nr_12, r_23, r_34, r_45);
     v_new(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
     % Calculate relative errors
     u_relative_error = max(abs((u_new - u) ./ u_new));
     v_relative_error = max(abs((v_new - v) ./ v_new));
     % Output relative errors per iteration
-    % fprintf('%.5d %.5d\n', u_relative_error, v_relative_error);
+    if show_err, fprintf('%.5d %.5d\n', u_relative_error, v_relative_error); end
     % Steady state check
     if u_relative_error < tolerance && v_relative_error < tolerance
       is_unsteady = false;
@@ -111,7 +149,7 @@ for cfl_width = 1 : max_cfl
 end  % cfl_width
 disp(toc());  % end stopwatch
 % Write to data file for post processing
-dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' ');
+if write_data, dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' '); end
 % Plot all solutions
 subplot(2, 1, 1);
 plot(r, u_ans(:, 1),...
