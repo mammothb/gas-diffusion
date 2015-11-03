@@ -12,20 +12,29 @@ gas_o2 = Gas('O2', para);  % create object for O2 gas
 % \param h [um], space step
 % \param omega Factor for Successive over relaxation method
 % \param tolerance Tolerance of relative error between iterations
+% \param start_cfl Starting CFL width
 % \param max_cfl [um], Maximum CFL width to test for
 % \param which_scheme Determines which scheme to use for Neumann BCs
 %        1: centered approx + correction term, first-order accurate
 %        2: one-sided approx, second-order accurate
+% \param cut_out_len Index deciding the amount of data to extract
 % \param show_err Boolean for displaying relative error between iterations
 % \param write_data Boolean to decide where results are written to data file
+% \param write_small_data Boolean to decide whether we are going to cut out part
+%        of the data for clearer analysis
+% \param show_plot Boolean to decide if plot are to be drawn
 %===============================================================================
-h = 0.5;
-omega = 1.95;
+h = 0.05;
+omega = 1.85;
 tolerance = 1e-6;
-max_cfl = 5;
+start_cfl = 3;
+max_cfl = 3;
 which_scheme = 2;
-show_err = false;
+cut_out_len = 100.0;
+show_err = true;
 write_data = true;
+write_small_data = true;
+show_plot = false;
 
 % Check if space step size is appropriate
 if mod(para.R, h) > 1e-20, error('Domain and space step incompatible'); end
@@ -35,8 +44,8 @@ nr = round(para.R / h) + 1;  % number of nodes in r direction
 r = linspace(0, para.R, nr);
 
 % Big matrix for all solutions
-u_ans = zeros(nr, max_cfl);
-v_ans = zeros(nr, max_cfl);
+u_ans = zeros(nr, max_cfl - start_cfl + 1);
+v_ans = zeros(nr, max_cfl - start_cfl + 1);
 
 % Set up coefficient for R terms for clarity
 r_coeff_no = h * h / gas_no.d_coeff;
@@ -61,10 +70,10 @@ otherwise
   error('Invalid Neumann BC scheme');
 end
 M_NO = L_NO + D_NO ./ omega;
-N_NO = D_NO ./ omega - D_NO - U_NO;
+N_NO = (1 / omega - 1) .* D_NO - U_NO;
 
 tic();  % start stopwatch
-for cfl_width = 1 : max_cfl
+for cfl_width = start_cfl : max_cfl
   iteration = 0;
   cfl = cfl_width;  % [um], CFL width
   lambda_core = para.lambda_b / 2 * (1 + para.int_r * para.int_r /...
@@ -78,6 +87,8 @@ for cfl_width = 1 : max_cfl
   ind_r2 = para.int_r / h + 1;          % index denoting end of vessel interior
   ind_r3 = ind_r2 + para.len_EC / h;    % index denoting end of EC layer
   ind_r4 = ind_r3 + para.len_VW / h;    % index denoting end of VW layer
+  % index denoting end of data to extract
+  ind_extract = ind_r4 + cut_out_len / h;
   % Number of nodes in selected compartments
   nr_01 = ind_r1;                       % number of nodes for r0 < r <= r1
   nr_12 = ind_r2 - ind_r1;              % number of nodes for r1 < r <= r2
@@ -113,7 +124,7 @@ for cfl_width = 1 : max_cfl
     error('Invalid Neumann BC scheme');
   end
   M_O2 = L_O2 + D_O2 ./ omega;
-  N_O2 = D_O2 ./ omega - D_O2 - U_O2;
+  N_O2 = (1 / omega - 1) .* D_O2 - U_O2;
   % Solve for an initial O2 profile
   G = MakeO2RHS(para, gas_o2, gas_no, u, v, r_coeff_o2, which_scheme, nr_12,...
       r_23, r_34, r_45);
@@ -149,19 +160,26 @@ for cfl_width = 1 : max_cfl
 end  % cfl_width
 disp(toc());  % end stopwatch
 % Write to data file for post processing
-if write_data, dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' '); end
+if write_data
+  dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' ');
+  dlmwrite('data_small.dat', [r(1 : ind_extract)', u_ans(1 : ind_extract, :),...
+      v_ans(1 : ind_extract, :)], 'delimiter', ' ');
+end
 % Plot all solutions
-subplot(2, 1, 1);
-plot(r, u_ans(:, 1),...
-     r, u_ans(:, 2),...
-     r, u_ans(:, 3),...
-     r, u_ans(:, 4),...
-     r, u_ans(:, 5));
-legend('1', '2', '3', '4', '5');
-subplot(2, 1, 2);
-plot(r, v_ans(:, 1),...
-     r, v_ans(:, 2),...
-     r, v_ans(:, 3),...
-     r, v_ans(:, 4),...
-     r, v_ans(:, 5));
-legend('1', '2', '3', '4', '5');
+if show_plot
+  subplot(2, 1, 1);
+  plot(r, u_ans(:, 1),...
+       r, u_ans(:, 2),...
+       r, u_ans(:, 3),...
+       r, u_ans(:, 4),...
+       r, u_ans(:, 5));
+  legend('1', '2', '3', '4', '5');
+  subplot(2, 1, 2);
+  plot(r, v_ans(:, 1),...
+       r, v_ans(:, 2),...
+       r, v_ans(:, 3),...
+       r, v_ans(:, 4),...
+       r, v_ans(:, 5));
+  legend('1', '2', '3', '4', '5');
+end
+fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));

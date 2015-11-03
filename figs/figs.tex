@@ -55,11 +55,11 @@
     legend style={font=\footnotesize},
     title={Predicted radial gradients for $C_{NO}$}
   ]
-  \addplot[cyan] table [x=r, y=u1]{data2.dat};
-  \addplot[red] table [x=r, y=u2]{data2.dat};
-  \addplot[blue] table [x=r, y=u3]{data2.dat};
-  \addplot[green] table [x=r, y=u4]{data2.dat};
-  \addplot[black] table [x=r, y=u5]{data2.dat};
+  \addplot[cyan] table [x=r, y=u1]{data_small1.dat};
+  \addplot[red] table [x=r, y=u2]{data_small1.dat};
+  \addplot[blue] table [x=r, y=u3]{data_small1.dat};
+  \addplot[green] table [x=r, y=u4]{data_small1.dat};
+  \addplot[black] table [x=r, y=u5]{data_small1.dat};
   \draw [dashed] (25,0) -- (25,700);
   \draw [dashed] (27.5,0) -- (27.5,700);
   \draw [dashed] (37.5,0) -- (37.5,700);
@@ -78,61 +78,11 @@
     legend style={font=\footnotesize},
     title={Predicted radial gradients for $P_{O_2}$}
   ]
-  \addplot[cyan] table [x=r, y=v1]{data2.dat};
-  \addplot[red] table [x=r, y=v2]{data2.dat};
-  \addplot[blue] table [x=r, y=v3]{data2.dat};
-  \addplot[green] table [x=r, y=v4]{data2.dat};
-  \addplot[black] table [x=r, y=v5]{data2.dat};
-  \draw [dashed] (25,0) -- (25,7500);
-  \draw [dashed] (27.5,0) -- (27.5,7500);
-  \draw [dashed] (37.5,0) -- (37.5,7500);
-  \end{axis}
-  \end{tikzpicture}
-  
-  \newpage
-  Polar $h = 0.1$
-  
-  \begin{tikzpicture}
-  \begin{axis}[
-    scale=1.8,
-    xmin=0,
-    %xmax=100,
-    ymin=0,
-    scaled y ticks=base 10:3,
-    xlabel={Distance away from the vessel center [$\mu$m]},
-    ylabel={$C_{NO}$ [$\mu$M]},
-    legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, $\delta=5$},
-    legend style={font=\footnotesize},
-    title={Predicted radial gradients for $C_{NO}$}
-  ]
-  \addplot[cyan] table [x=r, y=u1]{data3.dat};
-  \addplot[red] table [x=r, y=u2]{data3.dat};
-  \addplot[blue] table [x=r, y=u3]{data3.dat};
-  \addplot[green] table [x=r, y=u4]{data3.dat};
-  \addplot[black] table [x=r, y=u5]{data3.dat};
-  \draw [dashed] (25,0) -- (25,700);
-  \draw [dashed] (27.5,0) -- (27.5,700);
-  \draw [dashed] (37.5,0) -- (37.5,700);
-  \end{axis}
-  \end{tikzpicture}
-  
-  \begin{tikzpicture}
-  \begin{axis}[
-    scale=1.8,
-    xmin=0,
-    %xmax=100,
-    ymin=0,
-    xlabel={Distance away from the vessel center [$\mu$m]},
-    ylabel={$P_{O_2}$ [Torr]},
-    legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, $\delta=5$},
-    legend style={font=\footnotesize},
-    title={Predicted radial gradients for $P_{O_2}$}
-  ]
-  \addplot[cyan] table [x=r, y=v1]{data3.dat};
-  \addplot[red] table [x=r, y=v2]{data3.dat};
-  \addplot[blue] table [x=r, y=v3]{data3.dat};
-  \addplot[green] table [x=r, y=v4]{data3.dat};
-  \addplot[black] table [x=r, y=v5]{data3.dat};
+  \addplot[cyan] table [x=r, y=v1]{data_small1.dat};
+  \addplot[red] table [x=r, y=v2]{data_small1.dat};
+  \addplot[blue] table [x=r, y=v3]{data_small1.dat};
+  \addplot[green] table [x=r, y=v4]{data_small1.dat};
+  \addplot[black] table [x=r, y=v5]{data_small1.dat};
   \draw [dashed] (25,0) -- (25,7500);
   \draw [dashed] (27.5,0) -- (27.5,7500);
   \draw [dashed] (37.5,0) -- (37.5,7500);
@@ -155,11 +105,11 @@
     legend style={font=\footnotesize},
     title={Predicted radial gradients for $C_{NO}$}
   ]
-  \addplot[cyan] table [x=r, y=u1]{data4.dat};
-  \addplot[red] table [x=r, y=u2]{data4.dat};
-  \addplot[blue] table [x=r, y=u3]{data4.dat};
-  \addplot[green] table [x=r, y=u4]{data4.dat};
-  \addplot[black] table [x=r, y=u5]{data4.dat};
+  \addplot[cyan] table [x=r, y=u1]{data_small2.dat};
+  \addplot[red] table [x=r, y=u2]{data_small2.dat};
+  \addplot[blue] table [x=r, y=u3]{data_small2.dat};
+  \addplot[green] table [x=r, y=u4]{data_small2.dat};
+  \addplot[black] table [x=r, y=u5]{data_small2.dat};
   \draw [dashed] (25,0) -- (25,700);
   \draw [dashed] (27.5,0) -- (27.5,700);
   \draw [dashed] (37.5,0) -- (37.5,700);
@@ -178,11 +128,11 @@
     legend style={font=\footnotesize},
     title={Predicted radial gradients for $P_{O_2}$}
   ]
-  \addplot[cyan] table [x=r, y=v1]{data4.dat};
-  \addplot[red] table [x=r, y=v2]{data4.dat};
-  \addplot[blue] table [x=r, y=v3]{data4.dat};
-  \addplot[green] table [x=r, y=v4]{data4.dat};
-  \addplot[black] table [x=r, y=v5]{data4.dat};
+  \addplot[cyan] table [x=r, y=v1]{data_small2.dat};
+  \addplot[red] table [x=r, y=v2]{data_small2.dat};
+  \addplot[blue] table [x=r, y=v3]{data_small2.dat};
+  \addplot[green] table [x=r, y=v4]{data_small2.dat};
+  \addplot[black] table [x=r, y=v5]{data_small2.dat};
   \draw [dashed] (25,0) -- (25,7500);
   \draw [dashed] (27.5,0) -- (27.5,7500);
   \draw [dashed] (37.5,0) -- (37.5,7500);	
@@ -190,7 +140,7 @@
   \end{tikzpicture}
   
   \newpage
-  FlexPDE Cells = 50
+  Cartesian vs Polar
   
   \begin{tikzpicture}
   \begin{axis}[
@@ -201,15 +151,14 @@
     scaled y ticks=base 10:3,
     xlabel={Distance away from the vessel center [$\mu$m]},
     ylabel={$C_{NO}$ [$\mu$M]},
-    legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, $\delta=5$},
+    legend entries={Cylindrical, Cartesian},
     legend style={font=\footnotesize},
-    title={Predicted radial gradients for $C_{NO}$}
+    title={Predicted radial gradients for $C_{NO}$ using Cartesian coordinates 
+    and Cylindrical coordinates at $\delta = 3$},
+    title style={yshift=0.5em}
   ]
-  \addplot[cyan] table [x=r, y=u1]{data_flexpde.dat};
-  \addplot[red] table [x=r, y=u2]{data_flexpde.dat};
-  \addplot[blue] table [x=r, y=u3]{data_flexpde.dat};
-  \addplot[green] table [x=r, y=u4]{data_flexpde.dat};
-  \addplot[black] table [x=r, y=u5]{data_flexpde.dat};
+  \addplot[red] table [x=r, y=u3]{data_small1.dat};
+  \addplot[blue] table [x=r, y=u3]{data_small2.dat};
   \draw [dashed] (25,0) -- (25,700);
   \draw [dashed] (27.5,0) -- (27.5,700);
   \draw [dashed] (37.5,0) -- (37.5,700);
@@ -224,15 +173,13 @@
     ymin=0,
     xlabel={Distance away from the vessel center [$\mu$m]},
     ylabel={$P_{O_2}$ [Torr]},
-    legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, $\delta=5$},
+    legend entries={Cylindrical, Cartesian},
     legend style={font=\footnotesize},
-    title={Predicted radial gradients for $P_{O_2}$}
+    title={Predicted radial gradients for $P_{O_2}$ using Cartesian coordinates 
+      and Cylindrical coordinates at $\delta = 3$}
   ]
-  \addplot[cyan] table [x=r, y=v1]{data_flexpde.dat};
-  \addplot[red] table [x=r, y=v2]{data_flexpde.dat};
-  \addplot[blue] table [x=r, y=v3]{data_flexpde.dat};
-  \addplot[green] table [x=r, y=v4]{data_flexpde.dat};
-  \addplot[black] table [x=r, y=v5]{data_flexpde.dat};
+  \addplot[red] table [x=r, y=v3]{data_small1.dat};
+  \addplot[blue] table [x=r, y=v3]{data_small2.dat};
   \draw [dashed] (25,0) -- (25,7500);
   \draw [dashed] (27.5,0) -- (27.5,7500);
   \draw [dashed] (37.5,0) -- (37.5,7500);	
@@ -240,7 +187,7 @@
   \end{tikzpicture}
   
   \newpage
-  Comparison
+  Varying $\tau_w$
   
   \begin{tikzpicture}
   \begin{axis}[
@@ -251,12 +198,63 @@
     scaled y ticks=base 10:3,
     xlabel={Distance away from the vessel center [$\mu$m]},
     ylabel={$C_{NO}$ [$\mu$M]},
-    legend entries={SOR, FlexPDE},
+    legend entries={$\tau_w = 0.4$, $\tau_w = 1.5$, $\tau_w = 10$},
     legend style={font=\footnotesize},
-    title={Validation of results}
+    title={Predicted radial gradients for $C_{NO}$ at $\delta = 3$ and various 
+    $\tau_w$},
+    title style={yshift=0.5em}
   ]
-  \addplot[blue] table [x=r, y=u5]{data3.dat};
-  \addplot+[only marks, mark=square, red] table [x=r, y=u5]{data_flexpde.dat};
+  \addplot[red] table [x=r, y=u3]{data_small3.dat};
+  \addplot[blue] table [x=r, y=u3]{data_small1.dat};
+  \addplot[green] table [x=r, y=u3]{data_small4.dat};
+  \draw [dashed] (25,0) -- (25,700);
+  \draw [dashed] (27.5,0) -- (27.5,1000);
+  \draw [dashed] (37.5,0) -- (37.5,1000);
+  \end{axis}
+  \end{tikzpicture}
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+    scale=1.8,
+    xmin=0,
+    %xmax=100,
+    ymin=0,
+    xlabel={Distance away from the vessel center [$\mu$m]},
+    ylabel={$P_{O_2}$ [Torr]},
+    legend entries={$\tau_w = 0.4$, $\tau_w = 1.5$, $\tau_w = 10$},
+    legend style={font=\footnotesize},
+    title={Predicted radial gradients for $P_{O_2}$ at $\delta = 3$ and 
+    various $\tau_w$}
+  ]
+  \addplot[red] table [x=r, y=v3]{data_small3.dat};
+  \addplot[blue] table [x=r, y=v3]{data_small1.dat};
+  \addplot[green] table [x=r, y=v3]{data_small4.dat};
+  \draw [dashed] (25,0) -- (25,7500);
+  \draw [dashed] (27.5,0) -- (27.5,7500);
+  \draw [dashed] (37.5,0) -- (37.5,7500);	
+  \end{axis}
+  \end{tikzpicture}
+  
+  \newpage
+  Varying $\lambda_b$
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+    scale=1.8,
+    xmin=0,
+    %xmax=100,
+    ymin=0,
+    scaled y ticks=base 10:3,
+    xlabel={Distance away from the vessel center [$\mu$m]},
+    ylabel={$C_{NO}$ [$\mu$M]},
+    legend entries={$\lambda_b = 382.5$, $\lambda_b = 562.5$},
+    legend style={font=\footnotesize},
+    title={Predicted radial gradients for $C_{NO}$ at $\delta = 3$ and various 
+      $\lambda_b$},
+    title style={yshift=0.5em}
+  ]
+  \addplot[red] table [x=r, y=u3]{data_small1.dat};
+  \addplot[blue] table [x=r, y=u3]{data_small5.dat};
   \draw [dashed] (25,0) -- (25,700);
   \draw [dashed] (27.5,0) -- (27.5,700);
   \draw [dashed] (37.5,0) -- (37.5,700);
@@ -271,12 +269,13 @@
     ymin=0,
     xlabel={Distance away from the vessel center [$\mu$m]},
     ylabel={$P_{O_2}$ [Torr]},
-    legend entries={SOR, FlexPDE},
+    legend entries={$\lambda_b = 382.5$, $\lambda_b = 562.5$},
     legend style={font=\footnotesize},
-    title={Validation of results}
+    title={Predicted radial gradients for $P_{O_2}$ at $\delta = 3$ and various 
+    $\lambda_b$}
   ]
-  \addplot[blue] table [x=r, y=v5]{data3.dat};
-  \addplot+[only marks, mark=square, red] table [x=r, y=v5]{data_flexpde.dat};
+  \addplot[red] table [x=r, y=v3]{data_small1.dat};
+  \addplot[blue] table [x=r, y=v3]{data_small5.dat};
   \draw [dashed] (25,0) -- (25,7500);
   \draw [dashed] (27.5,0) -- (27.5,7500);
   \draw [dashed] (37.5,0) -- (37.5,7500);	

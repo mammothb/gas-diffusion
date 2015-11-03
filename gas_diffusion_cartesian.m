@@ -20,12 +20,14 @@ gas_o2 = Gas('O2', para);  % create object for O2 gas
 % \param write_data Boolean to decide where results are written to data file
 %===============================================================================
 h = 0.5;
-omega = 1.95;
+omega = 1.85;
 tolerance = 1e-6;
 max_cfl = 5;
 which_scheme = 2;
+cut_out_len = 100.0;
 show_err = false;
 write_data = true;
+write_small_data = true;
 
 % Check if space step size is appropriate
 if mod(para.R, h) > 1e-20, error('Domain and space step incompatible'); end
@@ -75,6 +77,8 @@ for cfl_width = 1 : max_cfl
   ind_r2 = para.int_r / h + 1;          % index denoting end of vessel interior
   ind_r3 = ind_r2 + para.len_EC / h;    % index denoting end of EC layer
   ind_r4 = ind_r3 + para.len_VW / h;    % index denoting end of VW layer
+  % index denoting end of data to extract
+  ind_extract = ind_r4 + cut_out_len / h;
   % Number of nodes in selected compartments
   nr_01 = ind_r1;                       % number of nodes for r0 < r <= r1
   nr_12 = ind_r2 - ind_r1;              % number of nodes for r1 < r <= r2
@@ -144,7 +148,11 @@ for cfl_width = 1 : max_cfl
 end  % cfl_width
 disp(toc());  % end stopwatch
 % Write to data file for post processing
-if write_data, dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' '); end
+if write_data
+  dlmwrite('data.dat', [r', u_ans, v_ans], 'delimiter', ' ');
+  dlmwrite('data_small.dat', [r(1 : ind_extract)', u_ans(1 : ind_extract, :),...
+      v_ans(1 : ind_extract, :)], 'delimiter', ' ');
+end
 % Plot all solutions
 subplot(2, 1, 1);
 plot(r, u_ans(:, 1),...
