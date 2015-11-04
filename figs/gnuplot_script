@@ -1,0 +1,49 @@
+set title 'Predicted radial gradients for C_{NO}'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'C_{NO} [{/Symbol m}M]'
+plot 'data1.dat' using 1:2 title '{/Symbol d} = 1' with l lw 1 lt rgb 'cyan', 'data1.dat' using 1:3 title '{/Symbol d} = 2' with l lw 1 lt rgb 'red', 'data1.dat' using 1:4 title '{/Symbol d} = 3' with l lw 1 lt rgb 'blue', 'data1.dat' using 1:5 title '{/Symbol d} = 4' with l lw 1 lt rgb 'green', 'data1.dat' using 1:6 title '{/Symbol d} = 5' with l lw 1 lt rgb 'black'
+
+set title 'Predicted radial gradients for P_{O_2}'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'P_{O_2} [Torr]'
+plot 'data1.dat' using 1:7 title '{/Symbol d} = 1' with l lw 1 lt rgb 'cyan', 'data1.dat' using 1:8 title '{/Symbol d} = 2' with l lw 1 lt rgb 'red', 'data1.dat' using 1:9 title '{/Symbol d} = 3' with l lw 1 lt rgb 'blue', 'data1.dat' using 1:10 title '{/Symbol d} = 4' with l lw 1 lt rgb 'green', 'data1.dat' using 1:11 title '{/Symbol d} = 5' with l lw 1 lt rgb 'black'
+
+set title 'Predicted radial gradients for C_{NO} in Cartesian coordinates'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'C_{NO} [{/Symbol m}M]'
+plot 'data2.dat' using 1:2 title '{/Symbol d} = 1' with l lw 1 lt rgb 'cyan', 'data2.dat' using 1:3 title '{/Symbol d} = 2' with l lw 1 lt rgb 'red', 'data2.dat' using 1:4 title '{/Symbol d} = 3' with l lw 1 lt rgb 'blue', 'data2.dat' using 1:5 title '{/Symbol d} = 4' with l lw 1 lt rgb 'green', 'data2.dat' using 1:6 title '{/Symbol d} = 5' with l lw 1 lt rgb 'black'
+
+set title 'Predicted radial gradients for P_{O_2} in Cartesian coordinates'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'P_{O_2} [Torr]'
+plot 'data2.dat' using 1:7 title '{/Symbol d} = 1' with l lw 1 lt rgb 'cyan', 'data2.dat' using 1:8 title '{/Symbol d} = 2' with l lw 1 lt rgb 'red', 'data2.dat' using 1:9 title '{/Symbol d} = 3' with l lw 1 lt rgb 'blue', 'data2.dat' using 1:10 title '{/Symbol d} = 4' with l lw 1 lt rgb 'green', 'data2.dat' using 1:11 title '{/Symbol d} = 5' with l lw 1 lt rgb 'black'
+
+set title 'Predicted radial gradients for C_{NO} using Cylindrical and Cartesian coordinates at {/Symbol d} = 3'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'C_{NO} [{/Symbol m}M]'
+plot 'data1.dat' using 1:4 title 'Cynlindrical' with l lw 1 lt rgb 'red', 'data2.dat' using 1:4 title 'Cartesian' with l lw 1 lt rgb 'blue'
+
+set title 'Predicted radial gradients for P_{O_2} using Cylindrical and Cartesian coordinates at {/Symbol d} = 3'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'P_{O_2} [Torr]'
+plot 'data1.dat' using 1:9 title 'Cynlindrical' with l lw 1 lt rgb 'red', 'data2.dat' using 1:9 title 'Cartesian' with l lw 1 lt rgb 'blue'
+
+set title 'Predicted radial gradients for C_{NO} at {/Symbol d} = 3 and various {/Symbol t}_w'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'C_{NO} [{/Symbol m}M]'
+plot 'data3.dat' using 1:4 title '{/Symbol t}_w = 0.4' with l lw 1 lt rgb 'red', 'data1.dat' using 1:4 title '{/Symbol t}_w = 1.5' with l lw 1 lt rgb 'blue', 'data4.dat' using 1:4 title '{/Symbol t}_w = 10.0' with l lw 1 lt rgb 'green'
+
+set title 'Predicted radial gradients for P_{O_2} at {/Symbol d} = 3 and various {/Symbol t}_w'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'P_{O_2} [Torr]'
+plot 'data3.dat' using 1:9 title '{/Symbol t}_w = 0.4' with l lw 1 lt rgb 'red', 'data1.dat' using 1:9 title '{/Symbol t}_w = 1.5' with l lw 1 lt rgb 'blue', 'data4.dat' using 1:9 title '{/Symbol t}_w = 10.0' with l lw 1 lt rgb 'green'
+
+set title 'Predicted radial gradients for C_{NO} at {/Symbol d} = 3 and various {/Symbol l}_b'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'C_{NO} [{/Symbol m}M]'
+plot 'data1.dat' using 1:4 title '{/Symbol l}_b = 382.5' with l lw 1 lt rgb 'red', 'data5.dat' using 1:4 title '{/Symbol l}_b = 562.5' with l lw 1 lt rgb 'blue'
+
+set title 'Predicted radial gradients for P_{O_2} at {/Symbol d} = 3 and various {/Symbol l}_b'
+set xlabel 'Distance away from the vessel center [{/Symbol m}m]'
+set ylabel 'P_{O_2} [Torr]'
+plot 'data1.dat' using 1:9 title '{/Symbol l}_b = 382.5' with l lw 1 lt rgb 'red', 'data5.dat' using 1:9 title '{/Symbol l}_b = 562.5' with l lw 1 lt rgb 'blue'
