@@ -12,10 +12,10 @@
     xlabel={Reciprocal of space step},
     ylabel={$C_{NO}$ [$\mu M$]},
     scaled y ticks=base 10:2,
-  %  legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, 
-  %$\delta=5$},
-  %  legend style={font=\footnotesize},
-    title={Convergence analysis}
+%    legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, 
+%    $\delta=5$},
+%    legend style={font=\footnotesize},
+    title={Convergence analysis at $\delta = 3$}
   ]
   \addplot+[blue, mark=square] table [x=h_inv, y=C_NO]{convergence.dat};
   \end{axis}
@@ -32,10 +32,51 @@
     scaled y ticks=base 10:-6,
     legend entries={SOR, GS},
     legend style={font=\footnotesize, legend pos=outer north east},
-    title={Iterations required to reach steady state solution}
+    title={Iterations required to reach steady state solution at $\delta = 3$}
   ]
   \addplot+[blue, mark=square] table [x=h_inv, y=it_sor]{convergence.dat};
   \addplot+[red, mark=square] table [x=h_inv, y=it_gs]{convergence.dat};
+  \end{axis}
+  \end{tikzpicture}
+  
+  \newpage
+  Convergence for large data
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+    scale=1.8,
+    xmin=0,
+    %xmax=100,
+    %ymin=0,
+    xlabel={Reciprocal of space step},
+    ylabel={Mean $C_{NO}$ [$\mu M$]},
+    yticklabel style={/pgf/number format/fixed,
+                      /pgf/number format/precision=3},
+%    legend entries={$\delta=1$, $\delta=2$, $\delta=3$, $\delta=4$, 
+%    $\delta=5$},
+%    legend style={font=\footnotesize},
+    title={Convergence analysis at $\delta = 3$}
+  ]
+  \addplot+[blue, mark=square] table [x=h_inv, y=C_NO_mean]{conv_large.dat};
+  \end{axis}
+  \end{tikzpicture}
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+    scale=1.8,
+    xmin=0,
+    %xmax=100,
+    ymin=0,
+    xlabel={Reciprocal of space step},
+    ylabel={Number of iterations},
+    scaled y ticks=base 10:-6,
+    yticklabel style={/pgf/number format/fixed,
+      /pgf/number format/precision=3},
+%    legend entries={SOR, GS},
+%    legend style={font=\footnotesize, legend pos=outer north east},
+    title={Iterations required to reach steady state solution at $\delta = 3$}
+  ]
+  \addplot+[blue, mark=square] table [x=h_inv, y=it_sor]{conv_large.dat};
   \end{axis}
   \end{tikzpicture}
   

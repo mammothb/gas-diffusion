@@ -24,14 +24,14 @@ gas_o2 = Gas('O2', para);  % create object for O2 gas
 %        of the data for clearer analysis
 % \param show_plot Boolean to decide if plot are to be drawn
 %===============================================================================
-h = 0.05;
+h = 0.5;
 omega = 1.85;
 tolerance = 1e-6;
-start_cfl = 3;
-max_cfl = 3;
+start_cfl = 1;
+max_cfl = 5;
 which_scheme = 2;
 cut_out_len = 100.0;
-show_err = true;
+show_err = false;
 write_data = true;
 write_small_data = true;
 show_plot = false;
@@ -182,4 +182,4 @@ if show_plot
        r, v_ans(:, 5));
   legend('1', '2', '3', '4', '5');
 end
-fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));
+% fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));
