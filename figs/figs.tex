@@ -104,6 +104,70 @@
   \end{tikzpicture}
   
   \newpage
+  Convergence for large data with very large space step
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+  scale=1.8,
+  xmin=0,
+  %xmax=100,
+  ymin=0.1695,
+  ymax=0.175,
+  axis y line*=left,
+  scaled y ticks=base 10:3,
+  xlabel={Reciprocal of space step},
+  ylabel={Peak $C_{NO}$ [$\mu M$]},
+  ylabel near ticks,
+  yticklabel style={/pgf/number format/fixed,
+    /pgf/number format/precision=3},
+  legend entries={$C_{NO}$},
+  legend style={font=\footnotesize,at={(0.85,0.975)},anchor=north 
+    west,draw=none},
+  title={Convergence analysis at $\delta = 5$}
+  ]
+  \addplot+[blue, mark=square] table [x=h_inv, y=C_NO_max]{conv.dat};
+  \end{axis}
+  \begin{axis}[
+  scale=1.8,
+  xmin=0,
+  %xmax=100,
+  ymin=1.21,
+  ymax=1.265,
+  hide x axis,
+  axis y line*=right,
+  ylabel={Mean $P_{O_2}$ [Torr]},
+  ylabel near ticks,
+  yticklabel style={/pgf/number format/fixed,
+    /pgf/number format/precision=3},
+  legend entries={$P_{O_2}$},
+  legend style={font=\footnotesize,at={(0.85,0.92)},anchor=north 
+    west,draw=none},
+  %title={Convergence analysis at $\delta = 3$}
+  ]
+  \addplot+[red, mark=square] table [x=h_inv, y=P_O2_mean]{conv.dat};
+  \end{axis}
+  \end{tikzpicture}
+  
+  \begin{tikzpicture}
+  \begin{axis}[
+  scale=1.8,
+  xmin=0,
+  %xmax=100,
+  ymin=0,
+  xlabel={Reciprocal of space step},
+  ylabel={Number of iterations},
+  scaled y ticks=base 10:-6,
+  yticklabel style={/pgf/number format/fixed,
+    /pgf/number format/precision=3},
+  %    legend entries={SOR, GS},
+  %    legend style={font=\footnotesize, legend pos=outer north east},
+  title={Iterations required to reach steady state solution at $\delta = 5$}
+  ]
+  \addplot+[blue, mark=square] table [x=h_inv, y=it_sor]{conv.dat};
+  \end{axis}
+  \end{tikzpicture}
+  
+  \newpage
   Polar $h = 0.5$
   
   \begin{tikzpicture}
