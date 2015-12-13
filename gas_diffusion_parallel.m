@@ -26,7 +26,7 @@ h = 0.5;
 omega = 1.85;
 tolerance = 1e-6;
 start_cfl = 1;
-max_cfl = 1;
+max_cfl = 2;
 which_scheme = 2;
 cut_out_len = 100.0;
 show_err = false;
@@ -55,8 +55,19 @@ a = h / 2 ./ r(2 : end - 1);
 % Create LHS for NO
 [M_NO, N_NO] = MakeNOLHS(which_scheme, omega, a, nr);
 
+% Interface indexes which are not affected by CFL width
+ind_r2 = params.int_r / h + 1;          % index denoting end of inner vessel
+ind_r3 = ind_r2 + params.len_EC / h;    % index denoting end of EC layer
+ind_r4 = ind_r3 + params.len_VW / h;    % index denoting end of VW layer
+% index denoting end of data to extract
+ind_extract = ind_r4 + cut_out_len / h;
+% Index vectors for clarity
+r_23 = ind_r2 + 1 : ind_r3;             % r2 < r <= r3
+r_34 = ind_r3 + 1 : ind_r4;             % r3 < r <= r4
+r_45 = ind_r4 + 1 : nr;                 % r4 < r <= r5
+
 tic();  % start stopwatch
-for cfl_width = start_cfl : max_cfl
+parfor cfl_width = start_cfl : max_cfl
   iteration = 0;
   cfl = cfl_width;  % [um], CFL width
   lambda_core = params.lambda_b / 2 * (1 + params.int_r * params.int_r /...
@@ -66,20 +77,13 @@ for cfl_width = start_cfl : max_cfl
   %% Various compartments and domain space
   % Interface indexes
   ind_r1 = (params.int_r - cfl) / h + 1;  % index denoting end of RBC core
-  ind_r2 = params.int_r / h + 1;          % index denoting end of inner vessel
-  ind_r3 = ind_r2 + params.len_EC / h;    % index denoting end of EC layer
-  ind_r4 = ind_r3 + params.len_VW / h;    % index denoting end of VW layer
-  % index denoting end of data to extract
-  ind_extract = ind_r4 + cut_out_len / h;
+
   % Number of nodes in selected compartments
   nr_01 = ind_r1;                         % number of nodes for r0 < r <= r1
   nr_12 = ind_r2 - ind_r1;                % number of nodes for r1 < r <= r2
   nr_15 = nr - nr_01;                     % number of nodes for r1 < r <= r5
   % Index vectors for selected compartments for clarity
   r_01 = 1 : ind_r1;                      % r0 < r <= r1
-  r_23 = ind_r2 + 1 : ind_r3;             % r2 < r <= r3
-  r_34 = ind_r3 + 1 : ind_r4;             % r3 < r <= r4
-  r_45 = ind_r4 + 1 : nr;                 % r4 < r <= r5
 
   %% Initialization
   u = zeros(nr, 1);                                         % solution for NO
