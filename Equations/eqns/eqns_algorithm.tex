@@ -1,0 +1,21 @@
+\newpage
+\section{Solution algorithm}
+\subsection{Gauss-Seidel}
+From \cite{GounelasGS}:
+\begin{equation}
+u_i^{k + 1} = -\frac{1}{2} \left (-\left (1 - a_i \right) u_{i - 1}^{k + 1} - 
+\left (1 + a_i \right) u_{i + 1}^k + h^2F_i \right)
+\end{equation}
+
+\subsection{Successive overrelaxation method}
+\begin{equation}
+-\frac{2}{\omega} u_i^{k + 1} = -\left (1 - a_i \right) u_{i - 1}^{k + 1} - 
+\left (1 + a_i \right) u_{i + 1}^k + h^2F_i - 
+\left (\frac{2}{\omega} - 2 \right) u_i^k
+\end{equation}
+Alternative formula \cite{LiuSOR}:
+\begin{equation}
+\mathbf{u}^{k + 1} = \left (\frac{1}{\omega} D + L \right)^{-1}
+\left \{\left [\left (\frac{1}{\omega} - 1 \right) D - U \right]
+\mathbf{u}^k + \mathbf{f} \right\}
+\end{equation}

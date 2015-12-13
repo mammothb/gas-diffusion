@@ -1,0 +1,80 @@
+\subsection{Oxygen}
+RBC core $r_0 < r < r_1$
+\begin{equation*}
+P_{O_2}=70
+\end{equation*}
+CFL $r_1<r<r_2$
+\begin{equation*}
+\alpha \frac{D_{O_2}}{r} \frac{d}{dr} \left (r \frac{dP_{O_2}}{dr} \right) = 0
+\end{equation*}
+\begin{equation*}
+G_i = \frac{0}{\alpha D_{O_2}}
+\end{equation*}
+EC $r_2<r<r_3$
+\begin{equation*}
+\alpha \frac{D_{O_2}}{r} \frac{d}{dr} \left (r \frac{dP_{O_2}}{dr} \right) - 
+\RNO = 0
+\end{equation*}
+\begin{equation*}
+G_i = \frac{R_{NO_{max}}}{\alpha D_{O_2}} \frac{P_{O_2}}{P_{O_2} +
+  K_{m, eNOS}}
+\end{equation*}
+VW $r_3<r<r_4$
+\begin{equation*}
+\alpha \frac{D_{O_2}}{r} \frac{d}{dr} \left (r \frac{dP_{O_2}}{dr} \right) - 
+Q_{O_2\:max\:VW} \frac{P_{O_2}}{P_{O_2} + appK_m} = 0
+\end{equation*}
+\begin{equation}
+appK_m = K_m \left (1 + \frac{\CNO}{C_{ref}} \right)
+\end{equation}
+\begin{equation*}
+G_i = \frac{Q_{O_2\:max\:VW}}{\alpha D_{O_2}} \frac{P_{O_2}}{P_{O_2} + K_m 
+  \left (1 + \frac{u_i}{C_{ref}} \right)}
+\end{equation*}
+T $r_4<r<r_5$
+\begin{equation*}
+\alpha \frac{D_{O_2}}{r} \frac{d}{dr} \left (r \frac{dP_{O_2}}{dr} \right) - 
+Q_{O_2\:max\:T} \frac{P_{O_2}}{P_{O_2} + appK_m} = 0
+\end{equation*}
+\begin{equation}
+appK_m = K_m \left (1 + \frac{\CNO}{C_{ref}} \right)
+\end{equation}
+\begin{equation*}
+G_i = \frac{Q_{O_2\:max\:T}}{\alpha D_{O_2}} \frac{P_{O_2}}{P_{O_2} + K_m 
+  \left (1 + \frac{u_i}{C_{ref}} \right)}
+\end{equation*}
+
+\subsubsection{$\mathbf{O_2}$ matrix}
+\setlength{\extrarowheight}{1.25\baselineskip}
+\begin{equation}
+A=
+\begin{bmatrix}
+1 & 0 & 0 & \cdots & \cdots & \cdots & 0\\
+1-a_{r_1 + 1} & -2 & 1+a_{r_1 + 1} & 0 & \cdots & \cdots & 0\\
+0 & 1-a_{r_1 + 2} & -2 & 1+a_{r_1 + 2} & \ddots & & \vdots\\
+\vdots & \ddots & \ddots & \ddots & \ddots & & \vdots\\
+\vdots & & \ddots & 1-a_{n-2} & -2 & 1+a_{n-2} & 0\\
+\vdots & \cdots & \cdots & 0 & 1-a_{n-1} & -2 & 1+a_{n-1}\\
+0 & \cdots & \cdots & \cdots & 1 & -4 & 3\\[5ex]
+\end{bmatrix},\:
+\vbf=
+\begin{bmatrix}
+v_{r_1}\\
+v_{r_1 + 1}\\
+\vdots\\
+v_i\\
+\vdots\\
+v_{n - 1}\\
+v_n
+\end{bmatrix},\:
+B=
+\begin{bmatrix}
+70\\
+h^2G_{r_1 + 1}\\
+\vdots\\
+h^2G_i\\
+\vdots\\
+h^2G_{n-1}\\
+0
+\end{bmatrix}
+\end{equation}

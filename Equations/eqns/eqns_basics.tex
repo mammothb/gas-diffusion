@@ -1,0 +1,78 @@
+\section{Discretization}
+\subsection{Discretizing governing equation with central difference 
+approximation}
+Starting equation
+\begin{equation}
+\frac{\DNO}{r} \frac{d}{dr} \left (r \frac{d\CNO}{dr} \right) + \RNO = 0
+\end{equation}
+Simplify
+\begin{equation}
+\DNO \frac{d^2\CNO}{dr^2} + \frac{\DNO}{r} \frac{d\CNO}{dr} = -\RNO
+\end{equation}
+Compare to form
+\begin{equation} \label{eq:form}
+u'' + P(r)u' = F(r)
+\end{equation}
+\begin{equation}
+\:u = \CNO, \:P(r) = \frac{1}{r}, \:F(r) = -\frac{\RNO}{\DNO}
+\end{equation}
+Taylor expansion
+\begin{align*}
+u_{i + 1} &= u_i + u_i'\dr + \frac{1}{2}u_i''\dr^2,\\
+u_{i - 1} &= u_i - u_i'\dr + \frac{1}{2}u_i''\dr^2
+\end{align*}
+Central difference
+\begin{align*}
+u_i' &= \frac{u_{i + 1} - u_{i - 1}}{2\dr},\\
+u_i'' &= \frac{u_{i + 1} - 2u_i + u_{i - 1}}{\dr^2}
+\end{align*}
+Sub back into Eq. \eqref{eq:form}
+\begin{equation}
+\frac{u_{i + 1} - 2u_i + u_{i - 1}}{h^2} + P_i
+\frac{u_{i + 1} - u_{i - 1}}{2h} = F_i, \:h = \dr
+\end{equation}
+where index $i$ starts at 1.\\
+Rearrange, let $a_i = \frac{h}{2} P_i$
+\begin{equation}
+\left (1 - a_i \right)u_{i - 1} + (-2)u_i +
+\left (1 + a_i \right)u_{i + 1} = h^2F_i
+\end{equation}
+\begin{equation}
+(-2)u_i = -\left (1 - a_i \right)u_{i - 1} -
+\left (1 + a_i \right)u_{i + 1} + h^2F_i
+\end{equation}
+\begin{equation}
+u_i = -\frac{1}{2} \left (-\left (1 - a_i \right)u_{i - 1} - 
+\left (1 + a_i \right)u_{i + 1} + h^2F_i \right)
+\end{equation}
+
+\subsection{Discretization schemes for boundary condition}
+\subsubsection{Use imaginary node and correction term}
+\begin{equation}
+\frac{u_2 - u_0}{2h} = 0 \rightarrow u_0 = u_2
+\end{equation}
+\begin{equation}
+\frac{u_{end + 1} - u_{end - 1}}{2h} = 0 \rightarrow u_{end + 1} = u_{end - 1}
+\end{equation}
+Substitute into Eq. \eqref{eq:form} when $i = 1$
+\begin{equation}
+(-2)u_1 = -2u_2 + \frac{1}{2} h^2 F_1
+\end{equation}
+Substitute into Eq. \eqref{eq:form} when $i = end$
+\begin{equation}
+(-2)u_{end} = -\left (1 - a_{end} \right)u_{end - 1} -
+\left (1 + a_{end} \right)u_{end + 1} + h^2 F_{end}
+\end{equation}
+\begin{equation}
+(-2)u_{end} = -2u_{end - 1} + h^2 F_{end}
+\end{equation}
+
+\subsubsection{Use second-order one-sided forward/backward approximation}
+From \cite{MorrisOneSided}:
+\begin{equation}
+\frac{-3u_1 + 4u_2 - u_3}{2h} = 0 \rightarrow -3u_1 + 4u_2 - u_3 = 0
+\end{equation}
+\begin{equation}
+\frac{3u_{end} - 4u_{end - 1} + u_{end - 2}}{2h} = 0 \rightarrow 
+3u_{end} - 4u_{end - 1} + u_{end - 2} = 0
+\end{equation}
