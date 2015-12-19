@@ -3,7 +3,7 @@ clf;
 %% Parameters that do not change in the loop
 % Model parameters
 params = Parameters();  % general parameters
-normal_cfl = (0.213 + 0.135) * 25.0 / 2.0;
+normal_cfl = (0.213 + 0.135) * params.int_r / 2.0;
 rbc_core_radius = params.int_r - normal_cfl;
 offset_radius = 1.0;
 offset_angle = 1.0;

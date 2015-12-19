@@ -3,6 +3,13 @@ clf;
 %% Parameters that do not change in the loop
 % Model parameters
 params = Parameters();  % general parameters
+normal_cfl = (0.213 + 0.135) * params.int_r / 2.0;
+rbc_core_radius = params.int_r - normal_cfl;
+offset_radius = 1.0;
+offset_angle = 1.0;
+quarter_coordinates = GetQuarterCoordinates(rbc_core_radius, offset_radius,...
+    offset_angle);
+disp(quarter_coordinates);
 
 %===============================================================================
 % Simulation parameters/flags
@@ -22,17 +29,17 @@ params = Parameters();  % general parameters
 %        of the data for clearer analysis
 % \param show_plot Boolean to decide if plot are to be drawn
 %===============================================================================
-h = 0.5;
-omega = 1.85;
+h = 0.1;
+omega = 1.9;
 tolerance = 1e-6;
-start_cfl = 1;
-max_cfl = 2;
+start_point = 1;
+end_point = 4;
 which_scheme = 2;
 cut_out_len = 100.0;
 show_err = false;
 write_data = true;
 write_small_data = true;
-show_plot = false;
+show_plot = true;
 
 % Check if space step size is appropriate
 if mod(params.R, h) > 1e-20, error('Domain and space step incompatible'); end
@@ -42,8 +49,8 @@ nr = round(params.R / h) + 1;  % number of nodes in r direction
 r = linspace(0, params.R, nr);
 
 % Big matrix for all solutions
-u_ans = zeros(nr, max_cfl - start_cfl + 1);
-v_ans = zeros(nr, max_cfl - start_cfl + 1);
+u_ans = zeros(nr, end_point - start_point + 1);
+v_ans = zeros(nr, end_point - start_point + 1);
 
 % Set up coefficient for R terms for clarity
 r_coeff_no = h * h / params.no.d_coeff;
@@ -56,32 +63,32 @@ a = h / 2 ./ r(2 : end - 1);
 [M_NO, N_NO] = MakeNOLHS(which_scheme, omega, a, nr);
 
 % Interface indexes which are not affected by CFL width
-ind_r2 = params.int_r / h + 1;          % index denoting end of inner vessel
-ind_r3 = ind_r2 + params.len_EC / h;    % index denoting end of EC layer
-ind_r4 = ind_r3 + params.len_VW / h;    % index denoting end of VW layer
+ind_r2 = round(params.int_r / h + 1);          % index for end of inner vessel
+ind_r3 = round(ind_r2 + params.len_EC / h);    % index for end of EC layer
+ind_r4 = round(ind_r3 + params.len_VW / h);    % index for end of VW layer
 % index denoting end of data to extract
-ind_extract = ind_r4 + cut_out_len / h;
+ind_extract = round(ind_r4 + cut_out_len / h);
 % Index vectors for clarity
 r_23 = ind_r2 + 1 : ind_r3;             % r2 < r <= r3
 r_34 = ind_r3 + 1 : ind_r4;             % r3 < r <= r4
 r_45 = ind_r4 + 1 : nr;                 % r4 < r <= r5
 
 tic();  % start stopwatch
-parfor cfl_width = start_cfl : max_cfl
+parfor ii = start_point : end_point
   iteration = 0;
-  cfl = cfl_width;  % [um], CFL width
+  cfl = params.int_r - quarter_coordinates(ii);  % [um], CFL width
   lambda_core = params.lambda_b / 2 * (1 + params.int_r * params.int_r /...
       (params.int_r - cfl) / (params.int_r - cfl));
   is_unsteady = true;  % while loop toggle
 
   %% Various compartments and domain space
   % Interface indexes
-  ind_r1 = (params.int_r - cfl) / h + 1;  % index denoting end of RBC core
+  ind_r1 = round((params.int_r - cfl) / h + 1);  % index for end of RBC core
 
   % Number of nodes in selected compartments
-  nr_01 = ind_r1;                         % number of nodes for r0 < r <= r1
-  nr_12 = ind_r2 - ind_r1;                % number of nodes for r1 < r <= r2
-  nr_15 = nr - nr_01;                     % number of nodes for r1 < r <= r5
+  nr_01 = round(ind_r1);                     % number of nodes for r0 < r <= r1
+  nr_12 = round(ind_r2 - ind_r1);            % number of nodes for r1 < r <= r2
+  nr_15 = round(nr - nr_01);                 % number of nodes for r1 < r <= r5
   % Index vectors for selected compartments for clarity
   r_01 = 1 : ind_r1;                      % r0 < r <= r1
 
@@ -92,7 +99,7 @@ parfor cfl_width = start_cfl : max_cfl
   v_new = [params.o2.P * ones(nr_01, 1); zeros(nr_15, 1)];  % solution for O2
 
   % Display interface positions
-  fprintf('CFL width: %d\n', cfl_width);
+  fprintf('CFL width: %d\n', cfl);
   fprintf('   r0    r1    r2    r3    r4    r5 \n');
   fprintf('%5.1f %5.1f %5.1f %5.1f %5.1f %5.1f\n',...
       r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
@@ -134,8 +141,8 @@ parfor cfl_width = start_cfl : max_cfl
   fprintf('Steady state reached in %d iterations\n', iteration);
 
   % Add solution to big solution matrix
-  u_ans(:, cfl_width) = u;
-  v_ans(:, cfl_width) = v;
+  u_ans(:, ii) = u;
+  v_ans(:, ii) = v;
 end  % cfl_width
 disp(toc());  % end stopwatch
 
@@ -152,15 +159,13 @@ if show_plot
   plot(r, u_ans(:, 1),...
        r, u_ans(:, 2),...
        r, u_ans(:, 3),...
-       r, u_ans(:, 4),...
-       r, u_ans(:, 5));
-  legend('1', '2', '3', '4', '5');
+       r, u_ans(:, 4));
+  legend('1', '2', '3', '4');
   subplot(2, 1, 2);
   plot(r, v_ans(:, 1),...
        r, v_ans(:, 2),...
        r, v_ans(:, 3),...
-       r, v_ans(:, 4),...
-       r, v_ans(:, 5));
-  legend('1', '2', '3', '4', '5');
+       r, v_ans(:, 4));
+  legend('1', '2', '3', '4');
 end
 % fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));
