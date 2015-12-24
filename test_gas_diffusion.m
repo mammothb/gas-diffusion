@@ -53,7 +53,6 @@ function testMakeO2LHS_scheme2(testCase)
   nr = 9;  % Matrix dimensions
   ind = 1;  % Index set to 1 to read the entirety of vector 'a'
   a = linspace(2, nr, nr - 1);  % Set vector 'a' such that value are 2 to 9
-  disp(a);
   loose_tol = 1e-6;  % Tolerance
 
   % Expected values, calculations in excel sheet
@@ -90,4 +89,45 @@ function testMakeO2LHS_scheme2(testCase)
   % Test function output are close to expected output within the given tolerance
   verifyEqual(testCase, M_O2, expected_M_O2, 'RelTol', loose_tol);
   verifyEqual(testCase, N_O2, expected_N_O2, 'RelTol', loose_tol);
+end
+
+function testGetQuarterCoordinates_ZeroAngularOffset(testCase)
+  radius = 10;  % Circle radius
+  r0 = 5;  % Radial offset
+  phi = 0;  % Angular offset
+  loose_tol = 1e-6;  % Tolerance
+
+  exp_coords = [15, 11.2, 5, 11.2];
+  coords = GetQuarterCoordinates(radius, r0, phi);
+
+  verifyEqual(testCase, coords, exp_coords, 'RelTol', loose_tol);
+end
+
+function testGetQuarterCoordinates_VariousAngularOffset(testCase)
+  radius = 10;  % Circle radius
+  r0 = 5;  % Radial offset
+  phi1 = pi * 0.25;  % Angular offset 45 deg
+  phi2 = pi * 0.75;  % Angular offset 135 deg
+  phi3 = pi * 1.25;  % Angular offset 225 deg
+  phi4 = pi * 1.75;  % Angular offset 315 deg
+  phi5 = pi * 1.62;  % Arbitrary angular offset
+  loose_tol = 1e-6;  % Tolerance
+
+  exp_coords1 = [14.1, 14.1, 7.1, 7.1];
+  exp_coords2 = [7.1, 14.1, 14.1, 7.1];
+  exp_coords3 = [7.1, 7.1, 14.1, 14.1];
+  exp_coords4 = [14.1, 7.1, 7.1, 14.1];
+  exp_coords5 = [12.9, 5.5, 9.2, 14.8];
+
+  coords1 = GetQuarterCoordinates(radius, r0, phi1);
+  coords2 = GetQuarterCoordinates(radius, r0, phi2);
+  coords3 = GetQuarterCoordinates(radius, r0, phi3);
+  coords4 = GetQuarterCoordinates(radius, r0, phi4);
+  coords5 = GetQuarterCoordinates(radius, r0, phi5);
+
+  verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords3, exp_coords3, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords4, exp_coords4, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords5, exp_coords5, 'RelTol', loose_tol);
 end
