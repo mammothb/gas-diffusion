@@ -101,7 +101,7 @@ for ii = start_point : end_point
       r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
 
   % Create LHS for O2
-  [M_O2, N_O2] = MakeO2LHS(which_scheme, omega, a, nr, nr_15, ind_r1);
+  [M_O2, N_O2] = MakeO2LHS(which_scheme, omega, a, nr_15, ind_r1);
   % Solve for an initial O2 profile
   G = MakeO2RHS(params, u, v, r_coeff_o2, which_scheme, nr_12, r_23, r_34,...
       r_45);
