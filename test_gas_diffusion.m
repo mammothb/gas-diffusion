@@ -3,8 +3,8 @@ function tests = FunctionalityTests
 end
 
 function testMakeNOLHS_scheme2(testCase)
-  % Arbitrary values for variables to tests functionality
   scheme = 2;  % Select one-sided approximation scheme
+  % Arbitrary values for variables to tests functionality
   omega = 1.5;  % Non-unity omega value
   nr = 10;  % Matrix dimensions
   a = linspace(2, nr - 1, nr - 2);  % Set vector 'a' such that value are 2 to 9
@@ -47,8 +47,8 @@ function testMakeNOLHS_scheme2(testCase)
 end
 
 function testMakeO2LHS_scheme2(testCase)
-  % Arbitrary values for variables to tests functionality
   scheme = 2;  % Select one-sided approximation scheme
+  % Arbitrary values for variables to tests functionality
   omega = 1.5;  % Non-unity omega value
   nr = 9;  % Matrix dimensions
   ind = 1;  % Index set to 1 to read the entirety of vector 'a'
@@ -89,6 +89,138 @@ function testMakeO2LHS_scheme2(testCase)
   % Test function output are close to expected output within the given tolerance
   verifyEqual(testCase, M_O2, expected_M_O2, 'RelTol', loose_tol);
   verifyEqual(testCase, N_O2, expected_N_O2, 'RelTol', loose_tol);
+end
+
+function testMakeNORHS_ConstantConcentration(testCase)
+  params = Parameters();
+  scheme = 2;
+  loose_tol = 1e-6;  % Tolerance
+  % Arbitrary values for variables to tests functionality
+  r_coeff_no = 1.3;  % Coefficient for R_NO term
+  lambda_core = 1.4;  % Scavenging rate in RBC core
+  nr = 20;  % Total number of nodes
+  r = linspace(1, nr, nr);  % r value at each nodes
+  n_cmpt = 4;  % Number of nodes per compartment
+  % Indexes to make the end of each compartment
+  ind_r1 = n_cmpt;
+  ind_r2 = n_cmpt * 2;
+  ind_r3 = n_cmpt * 3;
+  ind_r4 = n_cmpt * 4;
+  % r values of each compartment
+  r_01 = r(1 : ind_r1);
+  r_23 = r(ind_r2 + 1 : ind_r3);
+  r_34 = r(ind_r3 + 1 : ind_r4);
+  r_45 = r(ind_r4 + 1 : end);
+  % Number of nodes in CFL compartment
+  nr_12 = n_cmpt;
+  % NO and O2 values (Arbitrary)
+  u = 1.1 * ones(nr, 1);
+  v = 1.2 * ones(nr, 1);
+
+  exp_F = [0; 2.002; 2.002; 2.002; 0; 0; 0; 0; -8.262711864; -8.262711864;...
+      -8.262711864; -8.262711864; 1.43; 1.43; 1.43; 1.43; 1.43; 1.43; 1.43;...
+      0];
+  F = MakeNORHS(params, u, v, r_coeff_no, scheme, r_01, nr_12, r_23, r_34,...
+      r_45, lambda_core);
+
+  verifyEqual(testCase, F, exp_F, 'RelTol', loose_tol);
+end
+
+function testMakeNORHS_VaryingConcentration(testCase)
+  params = Parameters();
+  scheme = 2;
+  loose_tol = 1e-6;  % Tolerance
+  % Arbitrary values for variables to tests functionality
+  r_coeff_no = 1.3;  % Coefficient for R_NO term
+  lambda_core = 1.4;  % Scavenging rate in RBC core
+  nr = 20;  % Total number of nodes
+  r = linspace(1, nr, nr);  % r value at each nodes
+  n_cmpt = 4;  % Number of nodes per compartment
+  % Indexes to make the end of each compartment
+  ind_r1 = n_cmpt;
+  ind_r2 = n_cmpt * 2;
+  ind_r3 = n_cmpt * 3;
+  ind_r4 = n_cmpt * 4;
+  % r values of each compartment
+  r_01 = r(1 : ind_r1);
+  r_23 = r(ind_r2 + 1 : ind_r3);
+  r_34 = r(ind_r3 + 1 : ind_r4);
+  r_45 = r(ind_r4 + 1 : end);
+  % Number of nodes in CFL compartment
+  nr_12 = n_cmpt;
+  % NO and O2 values (Arbitrary)
+  u = [1.1 : 0.1 : 3]';
+  v = [3 : -0.1 : 1.1]';
+
+  exp_F = [0; 2.184; 2.366; 2.548; 0; 0; 0; 0; -12.95289855; -12.54595588;...
+      -12.12686567; -11.69507576; 2.99; 3.12; 3.25; 3.38; 3.51; 3.64; 3.77;...
+      0];
+  F = MakeNORHS(params, u, v, r_coeff_no, scheme, r_01, nr_12, r_23, r_34,...
+      r_45, lambda_core);
+
+  verifyEqual(testCase, F, exp_F, 'RelTol', loose_tol);
+end
+
+function testMakeO2RHS_ConstantConcentration(testCase)
+  params = Parameters();
+  scheme = 2;
+  loose_tol = 1e-6;  % Tolerance
+  % Arbitrary values for variables to tests functionality
+  r_coeff_o2 = 1.3;  % Coefficient for R_O2 term
+  nr = 20;  % Total number of nodes
+  r = linspace(1, nr, nr);  % r value at each nodes
+  n_cmpt = 4;  % Number of nodes per compartment
+  % Indexes to make the end of each compartment
+  ind_r2 = n_cmpt * 2;
+  ind_r3 = n_cmpt * 3;
+  ind_r4 = n_cmpt * 4;
+  % r values of each compartment
+  r_23 = r(ind_r2 + 1 : ind_r3);
+  r_34 = r(ind_r3 + 1 : ind_r4);
+  r_45 = r(ind_r4 + 1 : end);
+  % Number of nodes in CFL compartment
+  nr_12 = n_cmpt;
+  % NO and O2 values (Arbitrary)
+  u = 1.1 * ones(nr, 1);
+  v = 1.2 * ones(nr, 1);
+
+  exp_G = [70; 0; 0; 0; 0; 8.262711864; 8.262711864; 8.262711864;...
+      8.262711864; 0.181645679; 0.181645679; 0.181645679; 0.181645679;...
+      1.816456788; 1.816456788; 1.816456788; 0];
+  G = MakeO2RHS(params, u, v, r_coeff_o2, scheme, nr_12, r_23, r_34, r_45);
+
+  verifyEqual(testCase, G, exp_G, 'RelTol', loose_tol);
+end
+
+function testMakeO2RHS_VaryingConcentration(testCase)
+  params = Parameters();
+  scheme = 2;
+  loose_tol = 1e-6;  % Tolerance
+  % Arbitrary values for variables to tests functionality
+  r_coeff_o2 = 1.3;  % Coefficient for R_O2 term
+  nr = 20;  % Total number of nodes
+  r = linspace(1, nr, nr);  % r value at each nodes
+  n_cmpt = 4;  % Number of nodes per compartment
+  % Indexes to make the end of each compartment
+  ind_r2 = n_cmpt * 2;
+  ind_r3 = n_cmpt * 3;
+  ind_r4 = n_cmpt * 4;
+  % r values of each compartment
+  r_23 = r(ind_r2 + 1 : ind_r3);
+  r_34 = r(ind_r3 + 1 : ind_r4);
+  r_45 = r(ind_r4 + 1 : end);
+  % Number of nodes in CFL compartment
+  nr_12 = n_cmpt;
+  % NO and O2 values (Arbitrary)
+  u = [1.1 : 0.1 : 3]';
+  v = [3 : -0.1 : 1.1]';
+
+  exp_G = [70; 0; 0; 0; 0; 12.95289855; 12.54595588; 12.12686567;...
+      11.69507576; 0.132976932; 0.120647822; 0.109252198; 0.09868791;...
+      0.888671875; 0.797141959; 0.711630736; 0];
+  G = MakeO2RHS(params, u, v, r_coeff_o2, scheme, nr_12, r_23, r_34, r_45);
+
+  verifyEqual(testCase, G, exp_G, 'RelTol', loose_tol);
 end
 
 function testGetQuarterCoordinates_ZeroAngularOffset(testCase)
