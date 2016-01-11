@@ -223,39 +223,116 @@ function testMakeO2RHS_VaryingConcentration(testCase)
   verifyEqual(testCase, G, exp_G, 'RelTol', loose_tol);
 end
 
-function testGetQuarterCoordinates_ZeroAngularOffset(testCase)
+function testGetQuarterCoordinates_CircleZeroAngularOffset(testCase)
   radius = 10;  % Circle radius
   r0 = 5;  % Radial offset
-  phi = 0;  % Angular offset
+  theta0 = 0;  % Angular offset
   loose_tol = 1e-6;  % Tolerance
 
-  exp_coords = [15, 11.2, 5, 11.2];
-  coords = GetQuarterCoordinates(radius, r0, phi);
+  exp_coords = [15, 8.7, 5, 8.7];
+  coords = GetQuarterCoordinates(r0, theta0, radius);
 
   verifyEqual(testCase, coords, exp_coords, 'RelTol', loose_tol);
 end
 
-function testGetQuarterCoordinates_VariousAngularOffset(testCase)
+function testGetQuarterCoordinates_CircleVariousAngularOffset(testCase)
   radius = 10;  % Circle radius
   r0 = 5;  % Radial offset
-  phi1 = pi * 0.25;  % Angular offset 45 deg
-  phi2 = pi * 0.75;  % Angular offset 135 deg
-  phi3 = pi * 1.25;  % Angular offset 225 deg
-  phi4 = pi * 1.75;  % Angular offset 315 deg
-  phi5 = pi * 1.62;  % Arbitrary angular offset
+  theta0_1 = pi * 0.25;  % Angular offset 45 deg
+  theta0_2 = pi * 0.75;  % Angular offset 135 deg
+  theta0_3 = pi * 1.25;  % Angular offset 225 deg
+  theta0_4 = pi * 1.75;  % Angular offset 315 deg
+  theta0_5 = pi * 1.62;  % Arbitrary angular offset
   loose_tol = 1e-6;  % Tolerance
 
-  exp_coords1 = [14.1, 14.1, 7.1, 7.1];
-  exp_coords2 = [7.1, 14.1, 14.1, 7.1];
-  exp_coords3 = [7.1, 7.1, 14.1, 14.1];
-  exp_coords4 = [14.1, 7.1, 7.1, 14.1];
-  exp_coords5 = [12.9, 5.5, 9.2, 14.8];
+  exp_coords1 = [12.9, 12.9, 5.8, 5.8];
+  exp_coords2 = [5.8, 12.9, 12.9, 5.8];
+  exp_coords3 = [5.8, 5.8, 12.9, 12.9];
+  exp_coords4 = [12.9, 5.8, 5.8, 12.9];
+  exp_coords5 = [10.7, 5.2, 7, 14.5];
 
-  coords1 = GetQuarterCoordinates(radius, r0, phi1);
-  coords2 = GetQuarterCoordinates(radius, r0, phi2);
-  coords3 = GetQuarterCoordinates(radius, r0, phi3);
-  coords4 = GetQuarterCoordinates(radius, r0, phi4);
-  coords5 = GetQuarterCoordinates(radius, r0, phi5);
+  coords1 = GetQuarterCoordinates(r0, theta0_1, radius);
+  coords2 = GetQuarterCoordinates(r0, theta0_2, radius);
+  coords3 = GetQuarterCoordinates(r0, theta0_3, radius);
+  coords4 = GetQuarterCoordinates(r0, theta0_4, radius);
+  coords5 = GetQuarterCoordinates(r0, theta0_5, radius);
+
+  verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords3, exp_coords3, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords4, exp_coords4, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords5, exp_coords5, 'RelTol', loose_tol);
+end
+
+function testGetQuarterCoordinates_EllipseZeroAngularOffset(testCase)
+  a = 8;  % Ellipse major axis length
+  b = 6;  % Ellipse minor axis length
+  r0 = 5;  % Radial offset
+  theta0 = 0;  % Angular offset
+  phi = 0;  % Ellipse rotation
+  loose_tol = 1e-6;  % Tolerance
+
+  exp_coords = [13, 4.7, 3, 4.7];
+  coords = GetQuarterCoordinates(r0, theta0, a, b, phi);
+
+  verifyEqual(testCase, coords, exp_coords, 'RelTol', loose_tol);
+end
+
+function testGetQuarterCoordinates_EllipseVariousAngularOffset(testCase)
+  a = 8;  % Ellipse major axis length
+  b = 6;  % Ellipse minor axis length
+  r0 = 5;  % Radial offset
+  theta0_1 = pi * 0.25;  % Angular offset 45 deg
+  theta0_2 = pi * 0.75;  % Angular offset 135 deg
+  theta0_3 = pi * 1.25;  % Angular offset 225 deg
+  theta0_4 = pi * 1.75;  % Angular offset 315 deg
+  theta0_5 = pi * 1.62;  % Arbitrary angular offset
+  phi = 0;  % Ellipse rotation
+  loose_tol = 1e-6;  % Tolerance
+
+  exp_coords1 = [10, 8.9, 2.9, 1.8];
+  exp_coords2 = [2.9, 8.9, 10, 1.8];
+  exp_coords3 = [2.9, 1.8, 10, 8.9];
+  exp_coords4 = [10, 1.8, 2.9, 8.9];
+  exp_coords5 = [6.9, 1.2, 3.2, 10.5];
+
+  coords1 = GetQuarterCoordinates(r0, theta0_1, a, b, phi);
+  coords2 = GetQuarterCoordinates(r0, theta0_2, a, b, phi);
+  coords3 = GetQuarterCoordinates(r0, theta0_3, a, b, phi);
+  coords4 = GetQuarterCoordinates(r0, theta0_4, a, b, phi);
+  coords5 = GetQuarterCoordinates(r0, theta0_5, a, b, phi);
+
+  verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords3, exp_coords3, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords4, exp_coords4, 'RelTol', loose_tol);
+  verifyEqual(testCase, coords5, exp_coords5, 'RelTol', loose_tol);
+end
+
+function testGetQuarterCoordinates_EllipseVariousRotation(testCase)
+  a = 8;  % Ellipse major axis length
+  b = 6;  % Ellipse minor axis length
+  r0 = 5;  % Radial offset
+  theta0 = pi * 1.62;  % Arbitrary angular offset
+  phi_1 = pi * 0.25;  % Rotation 45 deg
+  phi_2 = pi * 0.75;  % Rotation 135 deg
+  phi_3 = pi * 1.25;  % Rotation 225 deg
+  phi_4 = pi * 1.75;  % Rotation 315 deg
+  phi_5 = pi * 1.62;  % Arbitrary rotation
+
+  loose_tol = 1e-6;  % Tolerance
+
+  exp_coords1 = [8.3, 1.4, 2, 11.7];
+  exp_coords2 = [5.7, 2.4, 4.6, 10.7];
+  exp_coords3 = [8.3, 1.4, 2, 11.7];
+  exp_coords4 = [5.7, 2.4, 4.6, 10.7];
+  exp_coords5 = [6.1, 3.1, 3.9, 11.5];
+
+  coords1 = GetQuarterCoordinates(r0, theta0, a, b, phi_1);
+  coords2 = GetQuarterCoordinates(r0, theta0, a, b, phi_2);
+  coords3 = GetQuarterCoordinates(r0, theta0, a, b, phi_3);
+  coords4 = GetQuarterCoordinates(r0, theta0, a, b, phi_4);
+  coords5 = GetQuarterCoordinates(r0, theta0, a, b, phi_5);
 
   verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
   verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);

@@ -7,8 +7,8 @@ normal_cfl = (0.213 + 0.135) * params.int_r / 2.0;
 rbc_core_radius = params.int_r - normal_cfl;
 offset_radius = 1.0;
 offset_angle = 1.0;
-quarter_coordinates = GetQuarterCoordinates(rbc_core_radius, offset_radius,...
-    offset_angle);
+quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
+    rbc_core_radius);
 disp(quarter_coordinates);
 
 %===============================================================================
