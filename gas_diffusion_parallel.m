@@ -5,11 +5,17 @@ clf;
 params = Parameters();  % general parameters
 normal_cfl = (0.213 + 0.135) * params.int_r / 2.0;
 rbc_core_radius = params.int_r - normal_cfl;
-offset_radius = 1.0;
-offset_angle = 1.0;
-quarter_coordinates = GetQuarterCoordinates(rbc_core_radius, offset_radius,...
-    offset_angle);
-disp(quarter_coordinates);
+offset_radius = normal_cfl * 0.2 * sqrt(2);
+offset_angle = 1.75 * pi;
+% Assuming circle
+  % quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
+  %     rbc_core_radius);
+% Assuming deformed ellipse
+quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
+    rbc_core_radius, rbc_core_radius, 0);
+quarter_coordinates(2) = round(quarter_coordinates(2) * 0.9, 1);
+quarter_coordinates(4) = round(quarter_coordinates(4) * 1.1, 1);
+disp((params.int_r - quarter_coordinates) ./ params.int_r);
 
 %===============================================================================
 % Simulation parameters/flags
@@ -105,7 +111,7 @@ parfor ii = start_point : end_point
       r(1), r(ind_r1), r(ind_r2), r(ind_r3), r(ind_r4), r(end));
 
   % Create LHS for O2
-  [M_O2, N_O2] = MakeO2LHS(which_scheme, omega, a, nr, nr_15, ind_r1);
+  [M_O2, N_O2] = MakeO2LHS(which_scheme, omega, a, nr_15, ind_r1);
   % Solve for an initial O2 profile
   G = MakeO2RHS(params, u, v, r_coeff_o2, which_scheme, nr_12, r_23, r_34,...
       r_45);

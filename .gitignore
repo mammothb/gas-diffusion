@@ -158,5 +158,7 @@ irrelevant/
 *.dbg
 *.pg6
 *.tbl
-*.dat
 *.png
+data.dat
+data_small.dat
+figs/

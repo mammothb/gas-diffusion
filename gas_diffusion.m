@@ -5,12 +5,17 @@ clf;
 params = Parameters();  % general parameters
 normal_cfl = (0.213 + 0.135) * params.int_r / 2.0;
 rbc_core_radius = params.int_r - normal_cfl;
-offset_radius = 1.0;
-offset_angle = 1.0;
+offset_radius = normal_cfl * 0.2 * sqrt(2);
+offset_angle = 1.75 * pi;
+% Assuming circle
+  % quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
+  %     rbc_core_radius);
+% Assuming deformed ellipse
 quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
-    rbc_core_radius);
-disp(quarter_coordinates);
-
+    rbc_core_radius, rbc_core_radius, 0);
+quarter_coordinates(2) = round(quarter_coordinates(2) * 0.9, 1);
+quarter_coordinates(4) = round(quarter_coordinates(4) * 1.1, 1);
+disp((params.int_r - quarter_coordinates) ./ params.int_r);
 %===============================================================================
 % Simulation parameters/flags
 %

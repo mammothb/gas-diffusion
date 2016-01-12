@@ -51,7 +51,6 @@ function coordinates = GetQuarterCoordinates(r0, theta0, varargin)
       R = sqr_diff * cos(2 * theta - 2 * phi) + sqr_sum;
       P = r0 * (sqr_diff * cos(theta + theta0 - 2 * phi) + sqr_sum *...
           cos(theta - theta0));
-      disp(P);
       Q = sqrt(2) * a * b * sqrt(R - 2 * r0 * r0 * sin(theta - theta0) *...
           sin(theta - theta0));
       coordinates(ii) = (P + Q) / R;
@@ -59,6 +58,8 @@ function coordinates = GetQuarterCoordinates(r0, theta0, varargin)
   otherwise
     error('Incorrect number of input arguments');
   end
+
+  disp(coordinates);
 
   % Round up coordinates to nearest 1dp
   coordinates = round(coordinates, 1);
