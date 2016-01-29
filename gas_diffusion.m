@@ -160,4 +160,6 @@ if show_plot
        r, v_ans(:, 4));
   legend('1', '2', '3', '4');
 end
+RevolvePlot(params, offset_radius_percent, offset_angle, shape, r, u_ans,...
+    v_ans);
 % fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));

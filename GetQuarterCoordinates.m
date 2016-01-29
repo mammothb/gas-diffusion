@@ -59,8 +59,7 @@ function coordinates = GetQuarterCoordinates(r0, theta0, varargin)
     error('Incorrect number of input arguments');
   end
 
-  % disp(coordinates);
-
   % Round up coordinates to nearest 1dp
   coordinates = round(coordinates, 1);
+  % disp(coordinates);
 end
