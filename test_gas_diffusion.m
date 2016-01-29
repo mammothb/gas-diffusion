@@ -92,7 +92,11 @@ function testMakeO2LHS_scheme2(testCase)
 end
 
 function testMakeNORHS_ConstantConcentration(testCase)
-  params = Parameters();
+  offset_radius = 0;
+  offset_angle = 0;
+  shape = 'circle';
+  index = 1;
+  params = Parameters(offset_radius, offset_angle, shape);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -117,17 +121,21 @@ function testMakeNORHS_ConstantConcentration(testCase)
   u = 1.1 * ones(nr, 1);
   v = 1.2 * ones(nr, 1);
 
-  exp_F = [0; 2.002; 2.002; 2.002; 0; 0; 0; 0; -8.262711864; -8.262711864;...
-      -8.262711864; -8.262711864; 1.43; 1.43; 1.43; 1.43; 1.43; 1.43; 1.43;...
+  exp_F = [0; 2.002; 2.002; 2.002; 0; 0; 0; 0; -1.665352779; -1.665352779;...
+  -1.665352779; -1.665352779; 1.43; 1.43; 1.43; 1.43; 1.43; 1.43; 1.43;...
       0];
   F = MakeNORHS(params, u, v, r_coeff_no, scheme, r_01, nr_12, r_23, r_34,...
-      r_45, lambda_core);
+      r_45, lambda_core, index);
 
   verifyEqual(testCase, F, exp_F, 'RelTol', loose_tol);
 end
 
 function testMakeNORHS_VaryingConcentration(testCase)
-  params = Parameters();
+  offset_radius = 0;
+  offset_angle = 0;
+  shape = 'circle';
+  index = 1;
+  params = Parameters(offset_radius, offset_angle, shape);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -152,17 +160,21 @@ function testMakeNORHS_VaryingConcentration(testCase)
   u = [1.1 : 0.1 : 3]';
   v = [3 : -0.1 : 1.1]';
 
-  exp_F = [0; 2.184; 2.366; 2.548; 0; 0; 0; 0; -12.95289855; -12.54595588;...
-      -12.12686567; -11.69507576; 2.99; 3.12; 3.25; 3.38; 3.51; 3.64; 3.77;...
+  exp_F = [0; 2.184; 2.366; 2.548; 0; 0; 0; 0; -2.610661723; -2.528642271;...
+      -2.444174476; -2.357147052; 2.99; 3.12; 3.25; 3.38; 3.51; 3.64; 3.77;...
       0];
   F = MakeNORHS(params, u, v, r_coeff_no, scheme, r_01, nr_12, r_23, r_34,...
-      r_45, lambda_core);
+      r_45, lambda_core, index);
 
   verifyEqual(testCase, F, exp_F, 'RelTol', loose_tol);
 end
 
 function testMakeO2RHS_ConstantConcentration(testCase)
-  params = Parameters();
+  offset_radius = 0;
+  offset_angle = 0;
+  shape = 'circle';
+  index = 1;
+  params = Parameters(offset_radius, offset_angle, shape);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -184,16 +196,21 @@ function testMakeO2RHS_ConstantConcentration(testCase)
   u = 1.1 * ones(nr, 1);
   v = 1.2 * ones(nr, 1);
 
-  exp_G = [70; 0; 0; 0; 0; 8.262711864; 8.262711864; 8.262711864;...
-      8.262711864; 0.181645679; 0.181645679; 0.181645679; 0.181645679;...
+  exp_G = [70; 0; 0; 0; 0; 1.665352779; 1.665352779; 1.665352779;...
+      1.665352779; 0.181645679; 0.181645679; 0.181645679; 0.181645679;...
       1.816456788; 1.816456788; 1.816456788; 0];
-  G = MakeO2RHS(params, u, v, r_coeff_o2, scheme, nr_12, r_23, r_34, r_45);
+  G = MakeO2RHS(params, u, v, r_coeff_o2, scheme, nr_12, r_23, r_34, r_45,...
+      index);
 
   verifyEqual(testCase, G, exp_G, 'RelTol', loose_tol);
 end
 
 function testMakeO2RHS_VaryingConcentration(testCase)
-  params = Parameters();
+  offset_radius = 0;
+  offset_angle = 0;
+  shape = 'circle';
+  index = 1;
+  params = Parameters(offset_radius, offset_angle, shape);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -215,10 +232,11 @@ function testMakeO2RHS_VaryingConcentration(testCase)
   u = [1.1 : 0.1 : 3]';
   v = [3 : -0.1 : 1.1]';
 
-  exp_G = [70; 0; 0; 0; 0; 12.95289855; 12.54595588; 12.12686567;...
-      11.69507576; 0.132976932; 0.120647822; 0.109252198; 0.09868791;...
+  exp_G = [70; 0; 0; 0; 0; 2.610661723; 2.528642271; 2.444174476;...
+      2.357147052; 0.132976932; 0.120647822; 0.109252198; 0.09868791;...
       0.888671875; 0.797141959; 0.711630736; 0];
-  G = MakeO2RHS(params, u, v, r_coeff_o2, scheme, nr_12, r_23, r_34, r_45);
+  G = MakeO2RHS(params, u, v, r_coeff_o2, scheme, nr_12, r_23, r_34, r_45,...
+      index);
 
   verifyEqual(testCase, G, exp_G, 'RelTol', loose_tol);
 end

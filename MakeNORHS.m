@@ -16,12 +16,13 @@
 % \param r_45 vector containing indexes for r4 < r <= r5
 % \param lambda_core lambda_core value needed to calculate NO reaction term in
 %        r0 < r <=r1
+% \param ind index denoting position in R_max vector
 %===============================================================================
 function B = MakeNORHS(params, u, v, r_coeff_no, which_scheme, r_01, nr_12,...
-    r_23, r_34, r_45, lambda_core)
+    r_23, r_34, r_45, lambda_core, ind)
   % Extra reaction terms for the RHS
   R_NO_01 = lambda_core .* u(r_01);
-  R_NO_23 = -params.no.R_max .* v(r_23) ./ (v(r_23) + params.o2.Km_eNOS);
+  R_NO_23 = -params.no.R_max(ind) .* v(r_23) ./ (v(r_23) + params.o2.Km_eNOS);
   R_NO_34 = params.lambda_vw .* u(r_34);
   R_NO_45 = params.lambda_t .* u(r_45);
 

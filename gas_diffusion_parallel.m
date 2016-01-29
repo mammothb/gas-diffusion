@@ -1,21 +1,12 @@
 clear;
 clf;
 %% Parameters that do not change in the loop
-% Model parameters
-params = Parameters();  % general parameters
-normal_cfl = (0.213 + 0.135) * params.int_r / 2.0;
-rbc_core_radius = params.int_r - normal_cfl;
-offset_radius = normal_cfl * 0.2 * sqrt(2);
+offset_radius_percent = 0.2 * sqrt(2);
 offset_angle = 1.75 * pi;
-% Assuming circle
-  % quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
-  %     rbc_core_radius);
-% Assuming deformed ellipse
-quarter_coordinates = GetQuarterCoordinates(offset_radius, offset_angle,...
-    rbc_core_radius, rbc_core_radius, 0);
-quarter_coordinates(2) = round(quarter_coordinates(2) * 0.9, 1);
-quarter_coordinates(4) = round(quarter_coordinates(4) * 1.1, 1);
-disp((params.int_r - quarter_coordinates) ./ params.int_r);
+shape = 'ellipse';
+% Model parameters
+params = Parameters(offset_radius_percent, offset_angle, shape);
+disp(params.cfl ./ params.int_r);
 
 %===============================================================================
 % Simulation parameters/flags
@@ -82,7 +73,7 @@ r_45 = ind_r4 + 1 : nr;                 % r4 < r <= r5
 tic();  % start stopwatch
 parfor ii = start_point : end_point
   iteration = 0;
-  cfl = params.int_r - quarter_coordinates(ii);  % [um], CFL width
+  cfl = params.cfl(ii);  % [um], CFL width
   lambda_core = params.lambda_b / 2 * (1 + params.int_r * params.int_r /...
       (params.int_r - cfl) / (params.int_r - cfl));
   is_unsteady = true;  % while loop toggle
@@ -114,7 +105,7 @@ parfor ii = start_point : end_point
   [M_O2, N_O2] = MakeO2LHS(which_scheme, omega, a, nr_15, ind_r1);
   % Solve for an initial O2 profile
   G = MakeO2RHS(params, u, v, r_coeff_o2, which_scheme, nr_12, r_23, r_34,...
-      r_45);
+      r_45, ii);
   v(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
 
   % Starts iterating to find the answer
@@ -122,11 +113,11 @@ parfor ii = start_point : end_point
     iteration = iteration + 1;
     % Solving for NO
     F = MakeNORHS(params, u, v, r_coeff_no, which_scheme, r_01, nr_12, r_23,...
-        r_34, r_45, lambda_core);
+        r_34, r_45, lambda_core, ii);
     u_new = M_NO \ (N_NO * u + F);
     % Solving for O2
     G = MakeO2RHS(params, u, v, r_coeff_o2, which_scheme, nr_12, r_23, r_34,...
-        r_45);
+        r_45, ii);
     v_new(ind_r1 : end) = M_O2 \ (N_O2 * v(ind_r1 : end) + G);
 
     % Calculate relative errors

@@ -4,8 +4,12 @@
 % 1: Impact of the Fahraeus Effect on NO and O2 Biotransport A Computer Model
 % 2: Two-dimensional transient model for prediction of arteriolar NO/O2
 %    modulation by spatiotemporal variations in cell-free layer width
+% \param offset_radius Offset radius of RBC core, in the current implementation
+%        offset_radius is a percentage of normal_cfl
+% \param offset_angle Offset angle of RBC core
+% \param shape Shape of RBC core, circle or ellipse
 %===============================================================================
-function obj = Parameters()
+function obj = Parameters(offset_radius, offset_angle, shape)
   % General paramaters
   obj.alpha = 1.3;  % [uM/Torr], Solubility
   obj.int_r = 25.0;  % [um], Internal radius
@@ -17,14 +21,36 @@ function obj = Parameters()
   obj.len_T = 140;  % [um], Tissue layer width
   obj.len_VW = 10.0;  % [um], Vessel wall width (from paper)
   obj.R = obj.int_r + obj.len_EC + obj.len_T + obj.len_VW;
-  obj.wss = 1.5;  % [Pa], Wall shear stress
-  obj.wss_ref = 2.4;  % [Pa], Reference wall shear stress
+  % obj.wss = 1.5;  % [Pa], Wall shear stress
+  wss_ref = 2.4;  % [Pa], Reference wall shear stress
+
+  % CFL width calculation
+  normal_cfl = (0.213 + 0.135) * obj.int_r / 2.0;
+  rbc_core_radius = obj.int_r - normal_cfl;
+  offset_radius = normal_cfl * offset_radius;
+  if strcmp(shape, 'circle')
+    quarter_coords = GetQuarterCoordinates(offset_radius, offset_angle,...
+        rbc_core_radius);
+  elseif strcmp(shape, 'ellipse')
+    quarter_coords = GetQuarterCoordinates(offset_radius, offset_angle,...
+        rbc_core_radius, rbc_core_radius, 0);
+    quarter_coords(2) = round(quarter_coords(2) * 0.9, 1);
+    quarter_coords(4) = round(quarter_coords(4) * 1.1, 1);
+  else
+    error('Invalid shape');
+  end
+  obj.cfl = obj.int_r - quarter_coords;
+
+  % Wall shear stress
+  viscosity = 1.3;  % [cP], Plasma viscosity
+  edge_vel = 1.0;  % [], Edge velocity
+  wss = viscosity * edge_vel ./ obj.cfl;  % [Pa], Wall shear stress
 
   % Gas parameters
   obj.no.d_coeff = 3300.0;  % [um^2/s], Diffusion coefficient for NO
   obj.no.q_ref = 50.0;  % [uM/s], Reference/control NO production rate
   obj.no.C_ref = 27e-3;  % [uM], Reference NO concentration
-  obj.no.R_max = obj.wss / obj.wss_ref * obj.no.q_ref;
+  obj.no.R_max = wss / wss_ref * obj.no.q_ref;
 
   obj.o2.d_coeff = 2800.0;  % [um^2/s], Diffusion coefficient for O2
   obj.o2.Q_max_vw = 5.0;  % [uM/s], Max O2 consumption rate at vascular wall

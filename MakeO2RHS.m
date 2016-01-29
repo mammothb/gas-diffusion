@@ -15,11 +15,12 @@
 % \param r_23 Vector containing indexes for r2 < r <= r3
 % \param r_34 Vector containing indexes for r3 < r <= r4
 % \param r_45 Vector containing indexes for r4 < r <= r5
+% \param ind index denoting position in R_max vector
 %===============================================================================
 function C = MakeO2RHS(params, u, v, r_coeff_o2, which_scheme, nr_12, r_23,...
-    r_34, r_45)
+    r_34, r_45, ind)
   % Extra reaction terms for the RHS
-  R_NO_23 = params.no.R_max .* v(r_23) ./ (v(r_23) + params.o2.Km_eNOS);
+  R_NO_23 = params.no.R_max(ind) .* v(r_23) ./ (v(r_23) + params.o2.Km_eNOS);
   app_Km_34 = params.Km .* (1 + u(r_34) ./ params.no.C_ref);
   R_O2_34 = params.o2.Q_max_vw .* v(r_34) ./ (v(r_34) + app_Km_34);
   app_Km_45 = params.Km .* (1 + u(r_45) ./ params.no.C_ref);
