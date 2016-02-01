@@ -7,9 +7,11 @@
 % \param offset_radius Offset radius of RBC core, in the current implementation
 %        offset_radius is a percentage of normal_cfl
 % \param offset_angle Offset angle of RBC core
-% \param shape Shape of RBC core, circle or ellipse
+% \param varargin Two cases: 1) Zero argument. 2) One argument.
+%        1) When shape is a circle
+%        2) \param deform Deformation of RBC core due to gravity effect
 %===============================================================================
-function obj = Parameters(offset_radius, offset_angle, shape)
+function obj = Parameters(num_coords, offset_radius, offset_angle, varargin)
   % General paramaters
   obj.alpha = 1.3;  % [uM/Torr], Solubility
   obj.int_r = 25.0;  % [um], Internal radius
@@ -28,15 +30,17 @@ function obj = Parameters(offset_radius, offset_angle, shape)
   normal_cfl = (0.213 + 0.135) * obj.int_r / 2.0;
   rbc_core_radius = obj.int_r - normal_cfl;
   offset_radius = normal_cfl * offset_radius;
-  if strcmp(shape, 'circle')
-    quarter_coords = GetQuarterCoordinates(offset_radius, offset_angle,...
-        rbc_core_radius);
-  elseif strcmp(shape, 'ellipse')
-    quarter_coords = GetQuarterCoordinates(offset_radius, offset_angle,...
-        rbc_core_radius, rbc_core_radius, 0);
-    quarter_coords(2) = round(quarter_coords(2) * 0.9, 1);
-    quarter_coords(4) = round(quarter_coords(4) * 1.1, 1);
-  else
+  switch length(varargin)
+  case 0
+    obj.shape = 'circle';
+    quarter_coords = GetQuarterCoordinates(num_coords, offset_radius,...
+        offset_angle, rbc_core_radius);
+  case 1
+    obj.shape = 'ellipse';
+    obj.deform = varargin{1};
+    quarter_coords = GetQuarterCoordinates(num_coords, offset_radius,...
+        offset_angle, rbc_core_radius, rbc_core_radius, 0, obj.deform);
+  otherwise
     error('Invalid shape');
   end
   obj.cfl = obj.int_r - quarter_coords;

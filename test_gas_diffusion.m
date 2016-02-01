@@ -92,11 +92,11 @@ function testMakeO2LHS_scheme2(testCase)
 end
 
 function testMakeNORHS_ConstantConcentration(testCase)
+  num_coords = 4;
   offset_radius = 0;
   offset_angle = 0;
-  shape = 'circle';
   index = 1;
-  params = Parameters(offset_radius, offset_angle, shape);
+  params = Parameters(num_coords, offset_radius, offset_angle);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -131,11 +131,11 @@ function testMakeNORHS_ConstantConcentration(testCase)
 end
 
 function testMakeNORHS_VaryingConcentration(testCase)
+  num_coords = 4;
   offset_radius = 0;
   offset_angle = 0;
-  shape = 'circle';
   index = 1;
-  params = Parameters(offset_radius, offset_angle, shape);
+  params = Parameters(num_coords, offset_radius, offset_angle);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -170,11 +170,11 @@ function testMakeNORHS_VaryingConcentration(testCase)
 end
 
 function testMakeO2RHS_ConstantConcentration(testCase)
+  num_coords = 4;
   offset_radius = 0;
   offset_angle = 0;
-  shape = 'circle';
   index = 1;
-  params = Parameters(offset_radius, offset_angle, shape);
+  params = Parameters(num_coords, offset_radius, offset_angle);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -206,11 +206,11 @@ function testMakeO2RHS_ConstantConcentration(testCase)
 end
 
 function testMakeO2RHS_VaryingConcentration(testCase)
+  num_coords = 4;
   offset_radius = 0;
   offset_angle = 0;
-  shape = 'circle';
   index = 1;
-  params = Parameters(offset_radius, offset_angle, shape);
+  params = Parameters(num_coords, offset_radius, offset_angle);
   scheme = 2;
   loose_tol = 1e-6;  % Tolerance
   % Arbitrary values for variables to tests functionality
@@ -242,18 +242,20 @@ function testMakeO2RHS_VaryingConcentration(testCase)
 end
 
 function testGetQuarterCoordinates_CircleZeroAngularOffset(testCase)
+  num_coords = 4;
   radius = 10;  % Circle radius
   r0 = 5;  % Radial offset
   theta0 = 0;  % Angular offset
   loose_tol = 1e-6;  % Tolerance
 
   exp_coords = [15, 8.7, 5, 8.7];
-  coords = GetQuarterCoordinates(r0, theta0, radius);
+  coords = GetQuarterCoordinates(num_coords, r0, theta0, radius);
 
   verifyEqual(testCase, coords, exp_coords, 'RelTol', loose_tol);
 end
 
 function testGetQuarterCoordinates_CircleVariousAngularOffset(testCase)
+  num_coords = 4;
   radius = 10;  % Circle radius
   r0 = 5;  % Radial offset
   theta0_1 = pi * 0.25;  % Angular offset 45 deg
@@ -269,11 +271,11 @@ function testGetQuarterCoordinates_CircleVariousAngularOffset(testCase)
   exp_coords4 = [12.9, 5.8, 5.8, 12.9];
   exp_coords5 = [10.7, 5.2, 7, 14.5];
 
-  coords1 = GetQuarterCoordinates(r0, theta0_1, radius);
-  coords2 = GetQuarterCoordinates(r0, theta0_2, radius);
-  coords3 = GetQuarterCoordinates(r0, theta0_3, radius);
-  coords4 = GetQuarterCoordinates(r0, theta0_4, radius);
-  coords5 = GetQuarterCoordinates(r0, theta0_5, radius);
+  coords1 = GetQuarterCoordinates(num_coords, r0, theta0_1, radius);
+  coords2 = GetQuarterCoordinates(num_coords, r0, theta0_2, radius);
+  coords3 = GetQuarterCoordinates(num_coords, r0, theta0_3, radius);
+  coords4 = GetQuarterCoordinates(num_coords, r0, theta0_4, radius);
+  coords5 = GetQuarterCoordinates(num_coords, r0, theta0_5, radius);
 
   verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
   verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);
@@ -283,6 +285,8 @@ function testGetQuarterCoordinates_CircleVariousAngularOffset(testCase)
 end
 
 function testGetQuarterCoordinates_EllipseZeroAngularOffset(testCase)
+  num_coords = 4;
+  deform = 0;
   a = 8;  % Ellipse major axis length
   b = 6;  % Ellipse minor axis length
   r0 = 5;  % Radial offset
@@ -291,12 +295,14 @@ function testGetQuarterCoordinates_EllipseZeroAngularOffset(testCase)
   loose_tol = 1e-6;  % Tolerance
 
   exp_coords = [13, 4.7, 3, 4.7];
-  coords = GetQuarterCoordinates(r0, theta0, a, b, phi);
+  coords = GetQuarterCoordinates(num_coords, r0, theta0, a, b, phi, deform);
 
   verifyEqual(testCase, coords, exp_coords, 'RelTol', loose_tol);
 end
 
 function testGetQuarterCoordinates_EllipseVariousAngularOffset(testCase)
+  num_coords = 4;
+  deform = 0;
   a = 8;  % Ellipse major axis length
   b = 6;  % Ellipse minor axis length
   r0 = 5;  % Radial offset
@@ -314,11 +320,11 @@ function testGetQuarterCoordinates_EllipseVariousAngularOffset(testCase)
   exp_coords4 = [10, 1.8, 2.9, 8.9];
   exp_coords5 = [6.9, 1.2, 3.2, 10.5];
 
-  coords1 = GetQuarterCoordinates(r0, theta0_1, a, b, phi);
-  coords2 = GetQuarterCoordinates(r0, theta0_2, a, b, phi);
-  coords3 = GetQuarterCoordinates(r0, theta0_3, a, b, phi);
-  coords4 = GetQuarterCoordinates(r0, theta0_4, a, b, phi);
-  coords5 = GetQuarterCoordinates(r0, theta0_5, a, b, phi);
+  coords1 = GetQuarterCoordinates(num_coords, r0, theta0_1, a, b, phi, deform);
+  coords2 = GetQuarterCoordinates(num_coords, r0, theta0_2, a, b, phi, deform);
+  coords3 = GetQuarterCoordinates(num_coords, r0, theta0_3, a, b, phi, deform);
+  coords4 = GetQuarterCoordinates(num_coords, r0, theta0_4, a, b, phi, deform);
+  coords5 = GetQuarterCoordinates(num_coords, r0, theta0_5, a, b, phi, deform);
 
   verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
   verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);
@@ -328,6 +334,8 @@ function testGetQuarterCoordinates_EllipseVariousAngularOffset(testCase)
 end
 
 function testGetQuarterCoordinates_EllipseVariousRotation(testCase)
+  num_coords = 4;
+  deform = 0;
   a = 8;  % Ellipse major axis length
   b = 6;  % Ellipse minor axis length
   r0 = 5;  % Radial offset
@@ -346,11 +354,11 @@ function testGetQuarterCoordinates_EllipseVariousRotation(testCase)
   exp_coords4 = [5.7, 2.4, 4.6, 10.7];
   exp_coords5 = [6.1, 3.1, 3.9, 11.5];
 
-  coords1 = GetQuarterCoordinates(r0, theta0, a, b, phi_1);
-  coords2 = GetQuarterCoordinates(r0, theta0, a, b, phi_2);
-  coords3 = GetQuarterCoordinates(r0, theta0, a, b, phi_3);
-  coords4 = GetQuarterCoordinates(r0, theta0, a, b, phi_4);
-  coords5 = GetQuarterCoordinates(r0, theta0, a, b, phi_5);
+  coords1 = GetQuarterCoordinates(num_coords, r0, theta0, a, b, phi_1, deform);
+  coords2 = GetQuarterCoordinates(num_coords, r0, theta0, a, b, phi_2, deform);
+  coords3 = GetQuarterCoordinates(num_coords, r0, theta0, a, b, phi_3, deform);
+  coords4 = GetQuarterCoordinates(num_coords, r0, theta0, a, b, phi_4, deform);
+  coords5 = GetQuarterCoordinates(num_coords, r0, theta0, a, b, phi_5, deform);
 
   verifyEqual(testCase, coords1, exp_coords1, 'RelTol', loose_tol);
   verifyEqual(testCase, coords2, exp_coords2, 'RelTol', loose_tol);

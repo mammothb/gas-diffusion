@@ -16,9 +16,12 @@
 %         \       /
 %           - 4 -
 %===============================================================================
-function coordinates = GetQuarterCoordinates(r0, theta0, varargin)
-  thetas = [0, 0.5 * pi, pi, 1.5 * pi];
-  num_coords = length(thetas);
+function coordinates = GetQuarterCoordinates(num_coords, r0, theta0, varargin)
+  thetas = zeros(num_coords);
+  theta_incr = 2 * pi / num_coords;
+  for ii = 1 : num_coords
+    thetas(ii) = theta_incr * (ii - 1);
+  end
   coordinates = zeros(1, num_coords);
 
   switch length(varargin)
@@ -40,12 +43,17 @@ function coordinates = GetQuarterCoordinates(r0, theta0, varargin)
         coordinates(ii) = r_plus;
       end
     end
-  case 3
+  case 4
     a = varargin{1};
     b = varargin{2};
     phi = varargin{3};
+    deform = varargin{4};
     sqr_diff = b * b - a * a;
     sqr_sum = a * a + b * b;
+    qtr_len = num_coords / 4;
+    nc_1 = num_coords * 0.25 + 1;
+    nc_2 = num_coords * 0.5;
+    nc_3 = num_coords * 0.75 + 1;
     for ii = 1 : num_coords
       theta = thetas(ii);
       R = sqr_diff * cos(2 * theta - 2 * phi) + sqr_sum;
@@ -53,7 +61,12 @@ function coordinates = GetQuarterCoordinates(r0, theta0, varargin)
           cos(theta - theta0));
       Q = sqrt(2) * a * b * sqrt(R - 2 * r0 * r0 * sin(theta - theta0) *...
           sin(theta - theta0));
-      coordinates(ii) = (P + Q) / R;
+      if ii <= nc_2
+        deformation = 1.0 - deform * (1.0 - abs(ii - nc_1) / qtr_len);
+      else
+        deformation = 1.0 + deform * (1.0 - abs(ii - nc_3) / qtr_len);
+      end
+      coordinates(ii) = (P + Q) / R * deformation;
     end
   otherwise
     error('Incorrect number of input arguments');

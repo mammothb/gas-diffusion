@@ -1,11 +1,13 @@
 clear;
 clf;
 %% Parameters that do not change in the loop
+num_coords = 16;
 offset_radius_percent = 0.2 * sqrt(2);
 offset_angle = 1.75 * pi;
-shape = 'ellipse';
+deform = 0.1;
 % Model parameters
-params = Parameters(offset_radius_percent, offset_angle, shape);
+params = Parameters(num_coords, offset_radius_percent, offset_angle, deform);
+fprintf('NCFL width: \n');
 disp(params.cfl ./ params.int_r);
 
 %===============================================================================
@@ -30,13 +32,13 @@ h = 0.1;
 omega = 1.9;
 tolerance = 1e-6;
 start_point = 1;
-end_point = 4;
+end_point = num_coords;
 which_scheme = 2;
 cut_out_len = 100.0;
 show_err = false;
 write_data = true;
 write_small_data = true;
-show_plot = true;
+show_plot = false;
 
 % Check if space step size is appropriate
 if mod(params.R, h) > 1e-20, error('Domain and space step incompatible'); end
@@ -165,6 +167,5 @@ if show_plot
        r, v_ans(:, 4));
   legend('1', '2', '3', '4');
 end
-RevolvePlot(params, offset_radius_percent, offset_angle, shape, r, u_ans,...
-    v_ans);
+RevolvePlot(params, offset_radius_percent, offset_angle, r, u_ans, v_ans);
 % fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));
