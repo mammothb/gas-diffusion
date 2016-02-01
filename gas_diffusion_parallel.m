@@ -1,12 +1,15 @@
 clear;
 clf;
 %% Parameters that do not change in the loop
-num_coords = 16;
+num_coords = 4;
 offset_radius_percent = 0.2 * sqrt(2);
 offset_angle = 1.75 * pi;
+% offset_radius_percent = 0.2;
+% offset_angle = 0;
 deform = 0.1;
 % Model parameters
 params = Parameters(num_coords, offset_radius_percent, offset_angle, deform);
+% params = Parameters(num_coords, offset_radius_percent, offset_angle);
 fprintf('NCFL width: \n');
 disp(params.cfl ./ params.int_r);
 
@@ -27,6 +30,7 @@ disp(params.cfl ./ params.int_r);
 % \param write_small_data Boolean to decide whether we are going to cut out part
 %        of the data for clearer analysis
 % \param show_plot Boolean to decide if plot are to be drawn
+% \param show_revolve_plot Boolean to decide if revolved plot are to be drawn
 %===============================================================================
 h = 0.1;
 omega = 1.9;
@@ -38,7 +42,8 @@ cut_out_len = 100.0;
 show_err = false;
 write_data = true;
 write_small_data = true;
-show_plot = false;
+show_plot = true;
+show_revolve_plot = false;
 
 % Check if space step size is appropriate
 if mod(params.R, h) > 1e-20, error('Domain and space step incompatible'); end
@@ -167,5 +172,8 @@ if show_plot
        r, v_ans(:, 4));
   legend('1', '2', '3', '4');
 end
-RevolvePlot(params, offset_radius_percent, offset_angle, r, u_ans, v_ans);
+
+if show_revolve_plot
+  RevolvePlot(params, offset_radius_percent, offset_angle, r, u_ans, v_ans);
+end
 % fprintf('Peak: %d\nMean: %d\n', max(u_ans(:, 3)), mean(u_ans(:, 3)));
