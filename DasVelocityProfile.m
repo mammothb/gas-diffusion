@@ -63,18 +63,18 @@ k_0 = 0.275363 + 2 ./ (0.100158 + H);
 k_inf = exp(1.3435 + H .* (-2.803 + H .* (2.711 - 0.6479 .* H)));
 gamma_c = exp(-6.1508 + H .* (27.923 + H .* (-25.6 + 3.697 .* H)));
 
-k = (k_0 + k_inf .* sqrt(I_e ./ gamma_c)) ./ (1 + sqrt(I_e ./ gamma_c));  % *
-mu = mu_p ./ (1 - 0.5 .* k .* H) .^ 2;  % *
-tau_w = 8 .* mu .* gamma_s;  % *
+% k = (k_0 + k_inf .* sqrt(I_e ./ gamma_c)) ./ (1 + sqrt(I_e ./ gamma_c));  % *
+% mu = mu_p ./ (1 - 0.5 .* k .* H) .^ 2;  % *
+% tau_w = 8 .* mu .* gamma_s;  % *
 mu_inf = mu_p ./ (1 - 0.5 .* k_inf .* H) .^ 2;
 mu_inf_m = max(max(mu_inf));
 Lambda = gamma_c .* ((1 - 0.5 .* k_0 .* H) ./ (1 - 0.5 .* k_inf .* H)) .^ 2;
 tau_0 = mu_p .* gamma_c .* (0.5 .* H .* (k_0 - k_inf)) .^ 2 ./ (1 - 0.5 .*...
     k_inf .* H) .^ 4;
-alpha = (sqrt(tau_0) + sqrt(mu_inf .* Lambda)) ./ sqrt(lambda .* tau_w);
+% alpha = (sqrt(tau_0) + sqrt(mu_inf .* Lambda)) ./ sqrt(lambda .* tau_w);
 q = (sqrt(tau_0) - sqrt(mu_inf .* Lambda)) ./ (sqrt(tau_0) + sqrt(mu_inf .*...
     Lambda));
-C_r = sqrt(r - 2 .* alpha .* q .* sqrt(r) + alpha .^ 2);
+% C_r = sqrt(r - 2 .* alpha .* q .* sqrt(r) + alpha .^ 2);
 % Arbitrary
 h = 0.02;
 R = 0 : h : 1;
