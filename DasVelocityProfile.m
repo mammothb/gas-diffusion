@@ -50,8 +50,8 @@ for ii = 1 : nn
 end
 
 % Parameters for RK4
-fmin = 0;
-fmax = 1e6;
+fmin = -100;
+fmax = 0;
 tau_wm = 1.4;  % dyne / cm^2, Characteristic wall shear stress
 mu_p = 1.3;
 % P_g = 2 * tau_wm * 1e-5 * 1e8 / R1;
@@ -82,36 +82,36 @@ mu = zeros(nn, nn);
 tau_w = zeros(nn, nn);
 alpha = zeros(nn, nn);
 gamma_dot = zeros(nn, nn);
-for ii = 1 : nn
-  for jj = 1 : nn
-    k_0_i = k_0(ii, jj);
-    k_inf_i = k_inf(ii, jj);
-    gamma_c_i = gamma_c(ii, jj);
-    H_i = H(ii, jj);
-    tau_0_i = tau_0(ii, jj);
-    mu_inf_i = mu_inf(ii, jj);
-    Lambda_i = Lambda(ii, jj);
-    q_i = q(ii, jj);
-    r_i = r(ii, jj);
-    k_i = @(I_e) (k_0_i + k_inf_i * sqrt(I_e / gamma_c_i)) / (1 + sqrt(I_e /...
-        gamma_c_i));  % *
-    mu_i = @(I_e) mu_p / (1 - 0.5 * k_i(I_e) * H_i) ^ 2 / mu_inf_m;  % *
-    tau_w_i = @(I_e) 8 * mu_i(I_e) * gamma_s;  % *
-    alpha_i = @(I_e) (sqrt(tau_0_i) + sqrt(mu_inf_i * Lambda_i)) /...
-        sqrt(lambda * tau_w_i(I_e));
-    C_r_i = @(I_e) sqrt(r_i - 2 * alpha_i(I_e) * q_i * sqrt(r_i) +...
-        alpha_i(I_e) ^ 2);
-    dvdr = @(I_e) P_g * R1 / 4 / mu_inf_i * (r_i - alpha_i(I_e) *...
-        (1 + q_i) * sqrt(r_i) + alpha_i(I_e)^2 + (sqrt(r_i) - alpha_i(I_e)) *...
-        C_r_i(I_e)) - I_e;
-    sr = fzero(dvdr, [0 100]);
-    k(ii, jj) = k_i(sr);
-    mu(ii, jj) = mu_i(sr);
-    tau_w(ii, jj) = tau_w_i(sr);
-    alpha(ii, jj) = alpha_i(sr);
-    gamma_dot(ii, jj) = sr;
-  end
-end
+% for ii = 1 : nn
+%   for jj = 1 : nn
+%     k_0_i = k_0(ii, jj);
+%     k_inf_i = k_inf(ii, jj);
+%     gamma_c_i = gamma_c(ii, jj);
+%     H_i = H(ii, jj);
+%     tau_0_i = tau_0(ii, jj);
+%     mu_inf_i = mu_inf(ii, jj);
+%     Lambda_i = Lambda(ii, jj);
+%     q_i = q(ii, jj);
+%     r_i = r(ii, jj);
+%     k_i = @(sr) (k_0_i + k_inf_i * sqrt(-0.25 * sr / gamma_c_i)) / (1 +...
+%         sqrt(-0.25 * sr / gamma_c_i));  % *
+%     mu_i = @(sr) mu_p / (1 - 0.5 * k_i(sr) * H_i) ^ 2;  % *
+%     tau_w_i = @(sr) 8 * mu_i(sr) * gamma_s;  % *
+%     alpha_i = @(sr) (sqrt(tau_0_i) + sqrt(mu_inf_i * Lambda_i)) /...
+%         sqrt(lambda * tau_w_i(sr));
+%     C_r_i = @(sr) sqrt(r_i - 2 * alpha_i(sr) * q_i * sqrt(r_i) +...
+%         alpha_i(sr) ^ 2);
+%     dvdr = @(sr) P_g * R1 / 4 / mu_inf_i * (r_i - alpha_i(sr) *...
+%         (1 + q_i) * sqrt(r_i) + alpha_i(sr)^2 + (sqrt(r_i) - alpha_i(sr)) *...
+%         C_r_i(sr)) + sr;
+%     shear_rate = fzero(dvdr, [-100 0]);
+%     k(ii, jj) = k_i(shear_rate);
+%     mu(ii, jj) = mu_i(shear_rate);
+%     tau_w(ii, jj) = tau_w_i(shear_rate);
+%     alpha(ii, jj) = alpha_i(shear_rate);
+%     gamma_dot(ii, jj) = shear_rate;
+%   end
+% end
 C_r = sqrt(r - 2 .* alpha .* q .* sqrt(r) + alpha .^ 2);
 % Arbitrary
 h = 0.02;
@@ -135,100 +135,93 @@ v = zeros(1, numel(R));
 %   k4 = h * dvdr(R(ii + incr) + h, v(ii + incr) + k3);
 %   v(ii) = v(ii + incr) + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
 % end
-% for ii = numel(R) - 1 : -1 : 1
-%   x_i = 51;
-%   z_i = x_i + ii;
-%   % Model Parameters
-%   k_0_i = k_0(z_i, x_i);
-%   k_inf_i = k_inf(z_i, x_i);
-%   gamma_c_i = gamma_c(z_i, x_i);
-%   H_i = H(z_i, x_i);
-%   tau_0_i = tau_0(z_i, x_i);
-%   mu_inf_i = mu_inf(z_i, x_i);
-%   Lambda_i = Lambda(z_i, x_i);
-%   q_i = q(z_i, x_i);
-%   r_i = r(z_i, x_i);
-%   k = @(I_e) (k_0_i + k_inf_i * sqrt(I_e / gamma_c_i)) / (1 + sqrt(I_e /...
-%       gamma_c_i));  % *
-%   mu = @(I_e) mu_p / (1 - 0.5 * k(I_e) * H_i) ^ 2 / mu_inf_m;  % *
-%   tau_w = @(I_e) 8 * mu(I_e) * gamma_s;  % *
-%   alpha_i = @(I_e) (sqrt(tau_0_i) + sqrt(mu_inf_i * Lambda_i)) /...
-%       sqrt(lambda * tau_w(I_e));
-%   C_r_i = @(I_e) sqrt(r_i - 2 * alpha_i(I_e) * q_i * sqrt(r_i) +...
-%       alpha_i(I_e) ^ 2);
-%   % Reverse sign when going from R1 to 0
-%   r_i = r(z_i, x_i);
-%   dvdr = @(r_i, x) P_g * R1 / 4 / mu_inf_i * (r_i - alpha_i * (1 + q_i) *...
-%       sqrt(r_i) + alpha_i^2 + (sqrt(r_i) - alpha_i) * C_r_i);
-%   r1 = R(ii + incr);
-%   r2 = R(ii + incr) + h / 2;
-%   r3 = R(ii + incr) + h / 2;
-%   r4 = R(ii + incr) + h;
-%   dvdr1 = @(I_e) P_g * R1 / 4 / mu_inf_i * (r1 - alpha_i(I_e) * (1 + q_i) *...
-%       sqrt(r1) + alpha_i(I_e)^2 + (sqrt(r1) - alpha_i(I_e)) * C_r_i(I_e)) - I_e;
-%   dvdr2 = @(I_e) P_g * R1 / 4 / mu_inf_i * (r2 - alpha_i(I_e) * (1 + q_i) *...
-%       sqrt(r2) + alpha_i(I_e)^2 + (sqrt(r2) - alpha_i(I_e)) * C_r_i(I_e)) - I_e;
-%   dvdr3 = @(I_e) P_g * R1 / 4 / mu_inf_i * (r3 - alpha_i(I_e) * (1 + q_i) *...
-%       sqrt(r3) + alpha_i(I_e)^2 + (sqrt(r3) - alpha_i(I_e)) * C_r_i(I_e)) - I_e;
-%   dvdr4 = @(I_e) P_g * R1 / 4 / mu_inf_i * (r4 - alpha_i(I_e) * (1 + q_i) *...
-%       sqrt(r4) + alpha_i(I_e)^2 + (sqrt(r4) - alpha_i(I_e)) * C_r_i(I_e)) - I_e;
-%   k1 = h * fzero(dvdr1, [fmin fmax]);
-%   k2 = h * fzero(dvdr2, [fmin fmax]);
-%   k3 = h * fzero(dvdr3, [fmin fmax]);
-%   k4 = h * fzero(dvdr4, [fmin fmax]);
-%   % k1 = h * dvdr(R(ii + incr), v(ii + incr));
-%   % k2 = h * dvdr(R(ii + incr) + h / 2, v(ii + incr) + k1 / 2);
-%   % k3 = h * dvdr(R(ii + incr) + h / 2, v(ii + incr) + k2 / 2);
-%   % k4 = h * dvdr(R(ii + incr) + h, v(ii + incr) + k3);
-%   v(ii) = v(ii + incr) + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-% end
+for ii = numel(R) - 1 : -1 : 1
+  x_i = 51;
+  z_i = x_i + ii;
+  % Model Parameters
+  k_0_i = k_0(z_i, x_i);
+  k_inf_i = k_inf(z_i, x_i);
+  gamma_c_i = gamma_c(z_i, x_i);
+  H_i = H(z_i, x_i);
+  tau_0_i = tau_0(z_i, x_i);
+  mu_inf_i = mu_inf(z_i, x_i);
+  Lambda_i = Lambda(z_i, x_i);
+  q_i = q(z_i, x_i);
+  r_i = r(z_i, x_i);
+  k_i = @(sr) (k_0_i + k_inf_i * sqrt(-0.25 * sr / gamma_c_i)) / (1 +...
+      sqrt(-0.25 * sr / gamma_c_i));  % *
+  mu_i = @(sr) mu_p / (1 - 0.5 * k_i(sr) * H_i) ^ 2;  % *
+  tau_w_i = @(sr) 8 * mu_i(sr) * gamma_s;  % *
+  alpha_i = @(sr) (sqrt(tau_0_i) + sqrt(mu_inf_i * Lambda_i)) /...
+      sqrt(lambda * tau_w_i(sr));
+  C_r_i = @(sr) sqrt(r_i - 2 * alpha_i(sr) * q_i * sqrt(r_i) +...
+      alpha_i(sr) ^ 2);
+  % Reverse sign when going from R1 to 0
+  r1 = R(ii + incr);
+  r2 = R(ii + incr) + h / 2;
+  r3 = R(ii + incr) + h / 2;
+  r4 = R(ii + incr) + h;
+  dvdr1 = @(sr) P_g * R1 / 4 / mu_inf_i * (r1 - alpha_i(sr) * (1 + q_i) *...
+      sqrt(r1) + alpha_i(sr)^2 + (sqrt(r1) - alpha_i(sr)) * C_r_i(sr)) + sr;
+  dvdr2 = @(sr) P_g * R1 / 4 / mu_inf_i * (r2 - alpha_i(sr) * (1 + q_i) *...
+      sqrt(r2) + alpha_i(sr)^2 + (sqrt(r2) - alpha_i(sr)) * C_r_i(sr)) + sr;
+  dvdr3 = @(sr) P_g * R1 / 4 / mu_inf_i * (r3 - alpha_i(sr) * (1 + q_i) *...
+      sqrt(r3) + alpha_i(sr)^2 + (sqrt(r3) - alpha_i(sr)) * C_r_i(sr)) + sr;
+  dvdr4 = @(sr) P_g * R1 / 4 / mu_inf_i * (r4 - alpha_i(sr) * (1 + q_i) *...
+      sqrt(r4) + alpha_i(sr)^2 + (sqrt(r4) - alpha_i(sr)) * C_r_i(sr)) + sr;
+  k1 = -h * fzero(dvdr1, [fmin fmax]);
+  k2 = -h * fzero(dvdr2, [fmin fmax]);
+  k3 = -h * fzero(dvdr3, [fmin fmax]);
+  k4 = -h * fzero(dvdr4, [fmin fmax]);
+  v(ii) = v(ii + incr) + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+end
 
-% plot(R, v * tau_wm * R1 / 2 / mu_inf_m);
-plot_y = 4;
-plot_x = 4;
-subplot(plot_y, plot_x, 1);
-mesh(x, z, H);
-xlabel('x');
-ylabel('z');
-zlabel('H');
-zlim([0 0.8]);
-title('H');
-subplot(plot_y, plot_x, 2);
-mesh(x, z, k_0);
-title('k_0');
-subplot(plot_y, plot_x, 3);
-mesh(x, z, k_inf);
-title('k_\infty');
-subplot(plot_y, plot_x, 4);
-mesh(x, z, gamma_c);
-title('\gamma_c');
-subplot(plot_y, plot_x, 5);
-mesh(x, z, mu_inf);
-title('\mu_\infty');
-subplot(plot_y, plot_x, 6);
-mesh(x, z, Lambda);
-title('\Lambda');
-subplot(plot_y, plot_x, 7);
-mesh(x, z, tau_0);
-title('\tau_0');
-subplot(plot_y, plot_x, 8);
-mesh(x, z, alpha);
-title('\alpha *');
-subplot(plot_y, plot_x, 9);
-mesh(x, z, q);
-title('q');
-subplot(plot_y, plot_x, 10);
-mesh(x, z, C_r);
-title('C_r');
-subplot(plot_y, plot_x, 11);
-mesh(x, z, k);
-title('k');
-subplot(plot_y, plot_x, 12);
-mesh(x, z, mu);
-title('\mu');
-subplot(plot_y, plot_x, 13);
-mesh(x, z, tau_w);
-title('\tau_w');
-subplot(plot_y, plot_x, 14);
-mesh(x, z, gamma_dot);
-title('\gamma');
+plot(R, v * tau_wm * R1 / 2 / mu_inf_m);
+% plot_y = 4;
+% plot_x = 4;
+% subplot(plot_y, plot_x, 1);
+% mesh(x, z, H);
+% xlabel('x');
+% ylabel('z');
+% zlabel('H');
+% zlim([0 0.8]);
+% title('H');
+% subplot(plot_y, plot_x, 2);
+% mesh(x, z, k_0);
+% title('k_0');
+% subplot(plot_y, plot_x, 3);
+% mesh(x, z, k_inf);
+% title('k_\infty');
+% subplot(plot_y, plot_x, 4);
+% mesh(x, z, gamma_c);
+% title('\gamma_c');
+% subplot(plot_y, plot_x, 5);
+% mesh(x, z, mu_inf);
+% title('\mu_\infty');
+% subplot(plot_y, plot_x, 6);
+% mesh(x, z, Lambda);
+% title('\Lambda');
+% subplot(plot_y, plot_x, 7);
+% mesh(x, z, tau_0);
+% title('\tau_0');
+% subplot(plot_y, plot_x, 8);
+% mesh(x, z, alpha);
+% title('\alpha *');
+% subplot(plot_y, plot_x, 9);
+% mesh(x, z, q);
+% title('q');
+% subplot(plot_y, plot_x, 10);
+% mesh(x, z, C_r);
+% title('C_r');
+% subplot(plot_y, plot_x, 11);
+% mesh(x, z, k);
+% title('k');
+% subplot(plot_y, plot_x, 12);
+% mesh(x, z, mu);
+% title('\mu');
+% subplot(plot_y, plot_x, 13);
+% mesh(x, z, tau_w);
+% title('\tau_w');
+% subplot(plot_y, plot_x, 14);
+% mesh(x, z, gamma_dot);
+% title('\gamma');

@@ -1,11 +1,11 @@
 clf;
 clear all;
-H_d = 0.355;  % Discharge hematocrit
+H_d = 0.335;  % Discharge hematocrit
 int_r = 27.1;  % [um], Internal radius
 nr = 101; % Number of data
 r = linspace(0, int_r, nr); % Create data from 0 to int_rad with 101 data
 h = r(2) - r(1); % space-step
-tolerance = 1e-6;
+tolerance = 0.025;
 conv_flag = true;
 
 % Guessing parameters
@@ -21,7 +21,7 @@ r1 = int_r - cfl; % Calculate RBC core
 ind_r1 = round(r1 / h + 1);  % index for end of inner vessel
 
 shear_rate = zeros(1, nr); % Create data of 1 row and 101 column
-J = 3732; % Pressure Gradient, dyn/cm^3 (632)
+J = 3732 * 1e-5 / 1e4 / 1e4; % Pressure Gradient, dyn/cm^3 (632)
 mu_p = 1.3; % Plasma Viscosity 
 
 % Step 3: Calculate shear rate
@@ -41,7 +41,7 @@ while conv_flag
   % Step 4: Compute flow velocity
   velocity = zeros(1, nr);
   for ii = 1 : nr
-    velocity(ii) = trapz(shear_rate(1 : ii));
+    velocity(ii) = trapz(-shear_rate(1 : ii));
   end
   
   % Step 5: Refine H_c
@@ -56,4 +56,7 @@ end
 subplot(2, 1, 1);
 plot(r, shear_rate);
 subplot(2, 1, 2);
-plot(r, velocity);
+new_v = velocity - min(velocity);
+mult = 2.1 / max(new_v);
+new_v = new_v .* mult;
+plot(r ./ max(r), new_v);
