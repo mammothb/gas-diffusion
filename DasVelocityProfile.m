@@ -9,9 +9,9 @@ H_t = 0.25;  % Tube hematorcrit
 R1 = 20.0;  % Vessel radius
 R2 = 0.7 * R1;  % RBC core radius
 lambda = R2 / R1;  % Core thickness
-h = 0.2 * R1;  % Minimum gap width
+h = (1 - R2 / R1) * R1;  % Minimum gap width
 delta = h / R1;  % Dimensionless peripheral layer thickness
-d = 0.0 * R1;  % Distance between two centers
+d = -0.0 * R1;  % Distance between two centers
 epsilon = d / R1;  % Eccentricity
 
 % Only axisymmetric
@@ -28,29 +28,29 @@ H = ones(nn, nn) .* H_min;  % Hematrocrit distribution
 
 for ii = 1 : nn
   for jj = 1 : nn
-    if r(ii, jj) ~= 0
-      rho = sqrt(epsilon^2 + r(ii, jj)^2 + 2 * r(ii, jj) * epsilon *...
-          z(ii, jj) / r(ii, jj));
-    else
-      rho = sqrt(epsilon^2 + r(ii, jj)^2);
-    end
-    %% Non-Axisymmetric hematocrit distribution
-    if rho < lambda
-      rl = rho / lambda;  % For convenience
+    % if r(ii, jj) ~= 0
+    %   rho = sqrt(epsilon^2 + r(ii, jj)^2 + 2 * r(ii, jj) * epsilon *...
+    %       z(ii, jj) / r(ii, jj));
+    % else
+    %   rho = sqrt(epsilon^2 + r(ii, jj)^2);
+    % end
+    % %% Non-Axisymmetric hematocrit distribution
+    % if rho < lambda
+    %   rl = rho / lambda;  % For convenience
+    %   H(ii, jj) = H_max - (H_max - H_min) * (0.5 * n * (n - 1) * rl^(n - 2) -...
+    %       n * (n - 2) * rl^(n - 1) + 0.5 * (n - 1) * (n - 2) * rl^n);
+    % end
+    %% Axisymmetric hematocrit distribution
+    if r(ii, jj) < 1 - delta
+      rl = r(ii, jj) / lambda;
       H(ii, jj) = H_max - (H_max - H_min) * (0.5 * n * (n - 1) * rl^(n - 2) -...
           n * (n - 2) * rl^(n - 1) + 0.5 * (n - 1) * (n - 2) * rl^n);
     end
-    %% Axisymmetric hematocrit distribution
-    % if r(ii, jj) < 1 - delta
-    %   H(ii, jj) = H_max - (H_max - H_min) * (0.5 * n * (n - 1) * (r(ii, jj) /...
-    %   lambda)^(n - 2) - n * (n - 2) * (r(ii, jj) / lambda)^(n - 1) + 0.5 *...
-    %   (n - 1) * (n - 2) * (r(ii, jj) / lambda) ^ n);
-    % end
   end
 end
 
 % Parameters for RK4
-fmin = -100;
+fmin = -1e4;
 fmax = 0;
 tau_wm = 1.4;  % dyne / cm^2, Characteristic wall shear stress
 mu_p = 1.3;
@@ -115,8 +115,10 @@ gamma_dot = zeros(nn, nn);
 C_r = sqrt(r - 2 .* alpha .* q .* sqrt(r) + alpha .^ 2);
 % Arbitrary
 h = 0.02;
-R = 0 : h : 1;
-incr = 1;
+R_plot = -1 : h : 1;
+R = abs(R_plot);
+
+incr = -1;
 v = zeros(1, numel(R));
 % for ii = numel(R) - 1 : -1 : 1
 %   x_i = 51;
@@ -135,9 +137,11 @@ v = zeros(1, numel(R));
 %   k4 = h * dvdr(R(ii + incr) + h, v(ii + incr) + k3);
 %   v(ii) = v(ii + incr) + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
 % end
-for ii = numel(R) - 1 : -1 : 1
+% for ii = numel(R) - 1 : -1 : 1
+for ii = 2 : numel(R)
+  disp(ii);
   x_i = 51;
-  z_i = x_i + ii;
+  z_i = ii - 1;
   % Model Parameters
   k_0_i = k_0(z_i, x_i);
   k_inf_i = k_inf(z_i, x_i);
@@ -169,14 +173,30 @@ for ii = numel(R) - 1 : -1 : 1
       sqrt(r3) + alpha_i(sr)^2 + (sqrt(r3) - alpha_i(sr)) * C_r_i(sr)) + sr;
   dvdr4 = @(sr) P_g * R1 / 4 / mu_inf_i * (r4 - alpha_i(sr) * (1 + q_i) *...
       sqrt(r4) + alpha_i(sr)^2 + (sqrt(r4) - alpha_i(sr)) * C_r_i(sr)) + sr;
-  k1 = -h * fzero(dvdr1, [fmin fmax]);
-  k2 = -h * fzero(dvdr2, [fmin fmax]);
-  k3 = -h * fzero(dvdr3, [fmin fmax]);
-  k4 = -h * fzero(dvdr4, [fmin fmax]);
+  % k1 = h * fzero(dvdr1, [fmin fmax]);
+  % k2 = h * fzero(dvdr2, [fmin fmax]);
+  % k3 = h * fzero(dvdr3, [fmin fmax]);
+  % k4 = h * fzero(dvdr4, [fmin fmax]);
+  if ii <= 51
+    k1 = -h * fzero(dvdr1, [fmin fmax]);
+    k2 = -h * fzero(dvdr2, [fmin fmax]);
+    k3 = -h * fzero(dvdr3, [fmin fmax]);
+    k4 = -h * fzero(dvdr4, [fmin fmax]);
+  % elseif ii == 50
+  %   k1 = -h * 0;
+  %   k2 = -h * 0;
+  %   k3 = -h * 0;
+  %   k4 = -h * 0;
+  else
+    k1 = h * fzero(dvdr1, [fmin fmax]);
+    k2 = h * fzero(dvdr2, [fmin fmax]);
+    k3 = h * fzero(dvdr3, [fmin fmax]);
+    k4 = h * fzero(dvdr4, [fmin fmax]);
+  end
   v(ii) = v(ii + incr) + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
 end
 
-plot(R, v * tau_wm * R1 / 2 / mu_inf_m);
+plot(R_plot, v * tau_wm * R1 / 2 / mu_inf_m);
 % plot_y = 4;
 % plot_x = 4;
 % subplot(plot_y, plot_x, 1);
