@@ -162,3 +162,7 @@ irrelevant/
 data.dat
 data_small.dat
 figs/
+*.syo
+*.nlg
+*.glsdefs
+*.syi

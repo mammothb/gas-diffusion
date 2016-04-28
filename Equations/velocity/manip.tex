@@ -1,0 +1,75 @@
+\subsection{Parameter manipulation}
+$I_e$ is the second invariant of the rate of deformation tensor.
+
+Velocity gradients:
+\setlength{\extrarowheight}{0.5\baselineskip}
+\begin{equation}
+  \Lbf_{ij} = \frac{\partial {\bf v}}{\partial {\bf x}} =
+  \begin{bmatrix}
+    \partial u \over \partial x &
+    \partial u \over \partial y &
+    \partial u \over \partial z \\
+    \partial v \over \partial x &
+    \partial v \over \partial y &
+    \partial v \over \partial z \\
+    \partial w \over \partial x &
+    \partial w \over \partial y &
+    \partial w \over \partial z
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    0 & 0 & 0 \\
+    \partial v \over \partial x & 0 & \partial v \over \partial z \\
+    0 & 0 & 0
+  \end{bmatrix}
+\end{equation}
+as $u = 0, w = 0, \frac{\partial v}{\partial y} = 0$.
+
+Rate of deformation tensor:
+\begin{equation}
+  \Dbf_{ij} = \frac{1}{2} (\Lbf_{ij} + \Lbf_{ij}^T) = \frac{1}{2} \left(
+  \begin{bmatrix}
+    0 & 0 & 0 \\
+    \partial v \over \partial x & 0 & \partial v \over \partial z \\
+    0 & 0 & 0
+  \end{bmatrix}
+  +
+  \begin{bmatrix}
+    0 & \partial v \over \partial x & 0 \\
+    0 & 0 & 0 \\
+    0 & \partial v \over \partial z & 0
+  \end{bmatrix}
+  \right)
+  = \frac{1}{2}
+  \begin{bmatrix}
+    0 & \partial v \over \partial x & 0 \\
+    \partial v \over \partial x & 0 & \partial v \over \partial z \\
+    0 & \partial v \over \partial z & 0
+  \end{bmatrix}
+\end{equation}
+
+Second invariant of the rate of deformation tensor
+\begin{equation}
+\begin{aligned}
+  I_e &= \frac{1}{2} [(\Tr \Dbf_{ij})^2 - \Tr (\Dbf_{ij}^2)] \\
+  & = D_{11}D_{22} + D_{22}D_{33} + D_{11}D_{33} - D_{12}D_{21} - D_{23}{32} -
+  D_{13}{31} \\
+  & = 0 + 0 + 0 - \frac{1}{4}\left(\frac{\partial v}{\partial x}\right)^2 -
+  \frac{1}{4} \left(\frac{\partial v}{\partial z}\right)^2 - 0 \\
+  & = -\frac{1}{4} \left[\left(\frac{\partial v}{\partial x}\right)^2 +
+  \left(\frac{\partial v}{\partial z}\right)^2\right] \\
+\end{aligned}
+\end{equation}
+
+Conversion from Cartesian derivatives to cylindrical derivatives
+\cite{SkiSickness}
+\begin{equation}
+\begin{aligned}
+  I_e & = -\frac{1}{4} \left[\left(\frac{\partial v}{\partial x}\right)^2 +
+  \left(\frac{\partial v}{\partial z}\right)^2\right] \\
+  & = -\frac{1}{4} \left[(\cos^2 \theta + \sin^2 \theta)\left(\frac{\partial v}
+  {\partial r} \right)^2\right] \\
+  & = -\frac{1}{4} \left(\frac{\partial v}{\partial r}\right)^2 \\
+  & = -\frac{1}{4} \dot{\gamma}^2
+\end{aligned}
+\end{equation}
